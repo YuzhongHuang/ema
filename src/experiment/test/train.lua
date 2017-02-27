@@ -26,17 +26,11 @@ trainPath = "../../../data/split1/train"
 testPath = "../../../data/split1/test"
 videoPath = "../../../data/frames"
 
--- encoding data paths
-paths = {train=trainPath, test=testPath, viedo=videoPath}
-
 -- hyper parameters
 learningRate = 0.005 -- define the learning rate
 learningDecay = 0.005
 iteration = 200 -- define iteration num
 momentum = 0.5
-
--- encoding hyper parameters
-optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
 
 -- parameters for building the network
 frameNum = 20
@@ -44,16 +38,22 @@ channelNum = 3
 classNum = 51
 batchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 
--- encoding network parameters
+-- encoding parameters into tables
+paths = {train=trainPath, test=testPath, video=videoPath}
+optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
 trainParams = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
 
--- model definition
+-- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
 	:add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
--- initialize a parallel data table
-net = nn.DataParallelTable(1)
-net:add(rnn, gpus)
+-- initialize a parallel data table for gpu
+if gpus then
+	net = nn.DataParallelTable(1)
+	net:add(rnn, gpus)
+else
+	net = rnn
+end
 
 -- build criterion
 criterion = nn.ClassNLLCriterion()
