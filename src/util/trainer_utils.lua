@@ -11,9 +11,9 @@ require "./train_utils"
 require "./data_utils"
 
 
-function train(iterations, learningRate, learningDecay, batchSize, frameNum, imgSize, model, criterion, trainPath, testPath, videoPath)
+function train(iterations, optimState, batchSize, frameNum, imgSize, model, criterion, trainPath, testPath, videoPath)
     -- encoding high level parameters
-    local optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = 0.5}
+    local optimState = optimState
 
     -- call getTest() to generate test data
     local testset = getTest(testPath, videoPath, frameNum, batchSize, imgSize)

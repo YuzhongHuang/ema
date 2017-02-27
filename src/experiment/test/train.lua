@@ -29,6 +29,10 @@ videoPath = "../../../data/frames"
 learningRate = 0.005 -- define the learning rate
 learningDecay = 0.005
 iteration = 200 -- define iteration num
+momentum = 0.5
+
+-- encoding hyper parameters
+optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
 
 -- parameters for building the network
 frameNum = 20
@@ -56,4 +60,4 @@ end
 -- TODO: use optnet to reduce memory usage
 -- TODO: use cudnn to optimize
 
-a = train(iteration, learningRate, learningDecay, batchSize, frameNum, imgSize, net, criterion, trainPath, testPath, videoPath)
+a = train(iteration, optimStatep, batchSize, frameNum, imgSize, net, criterion, trainPath, testPath, videoPath)
