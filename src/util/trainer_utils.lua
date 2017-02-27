@@ -11,23 +11,28 @@ require "./train_utils"
 require "./data_utils"
 
 
-function train(iterations, optimState, batchSize, frameNum, imgSize, model, criterion, trainPath, testPath, videoPath)
-    -- encoding high level parameters
+function train(optimState, trainParams, paths, model, criterion)
     local optimState = optimState
 
+    -- decoding train parameters
+    iteration = trainParams["iteration"]
+    frameNum = trainParams["frameNum"]
+    batchSize = trainParams["batchSize"]
+    imgSize = trainParams["imgSize"]
+
     -- call getTest() to generate test data
-    local testset = getTest(testPath, videoPath, frameNum, batchSize, imgSize)
+    local testset = getTest(paths["test"], paths["video"], frameNum, batchSize, imgSize)
 
     -- initialize an accuracy table to write down accuracies in each epoch 
     local accuracy_table = {}
 	
-    for epoch=1,iterations do
+    for epoch=1,iteration do
         print('Current Epoch: '..epoch)
 
         local parameters, gradParams = model:getParameters()
 
         -- call getBatch() to generate batchInputs and batchLabels
-        local batchInputs, batchLabels = getBatch(trainPath, videoPath, batchSize, frameNum, imgSize)
+        local batchInputs, batchLabels = getBatch(paths["train"], paths["video"], batchSize, frameNum, imgSize)
 
         local function feval(params)
             -- get new parameters

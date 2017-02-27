@@ -21,9 +21,13 @@ gpuFlag = true -- set running mode
 imgSize = 16
 gpus = {1,2}
 
+-- data paths
 trainPath = "../../../data/split1/train"
 testPath = "../../../data/split1/test"
 videoPath = "../../../data/frames"
+
+-- encoding data paths
+paths = {train=trainPath, test=testPath, viedo=videoPath}
 
 -- hyper parameters
 learningRate = 0.005 -- define the learning rate
@@ -39,6 +43,9 @@ frameNum = 20
 channelNum = 3
 classNum = 51
 batchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+
+-- encoding network parameters
+trainParams = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
 
 -- model definition
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
@@ -60,4 +67,4 @@ end
 -- TODO: use optnet to reduce memory usage
 -- TODO: use cudnn to optimize
 
-a = train(iteration, optimStatep, batchSize, frameNum, imgSize, net, criterion, trainPath, testPath, videoPath)
+a = train(optimState, trainParams, paths, net, criterion)
