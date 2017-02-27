@@ -56,6 +56,27 @@ function getBatch(trainsets, videoPath, batchSize, frameNum, imgSize)
     return getVideo(batchPaths, frameNum, imgSize), torch.Tensor(batchLabels):cuda()
 end
 
+function getEpoch(trainsets, videoPath, frameNum, imgSize)
+    local classes = ls(trainsets)
+    local Paths = {}
+    local Labels = {}
+
+    for i=1, #classes do
+        local path = trainsets..'/'..classes[i]..'/train.txt'
+        local framePath = videoPath..'/'..classes[i]
+        local lst = read_and_process(path, framePath)
+        local indices = getIndices(70, 70) -- get all 70 shuffled elements per catergory for training
+
+        -- get all 70 trainning elements many videos from each class
+        for j=1, batchSize do
+            table.insert(Paths, lst[indices[j]])
+            table.insert(Labels, i)
+        end 
+    end
+
+    return batchPaths, torch.Tensor(batchLabels):cuda()
+end
+
 function getVideo(paths, frameNum, imgSize)
     -- local max = maxSequence(paths)
     local batchInputs = torch.FloatTensor(#paths, frameNum, 3, imgSize, imgSize)
