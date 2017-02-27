@@ -24,12 +24,18 @@ function train(iterations, learningRate, learningDecay, batchSize, frameNum, img
     for epoch=1,iterations do
         print('Current Epoch: '..epoch)
 
-        local params, gradParams = model:getParameters()
+        local parameters, gradParams = model:getParameters()
 
         -- call getBatch() to generate batchInputs and batchLabels
         local batchInputs, batchLabels = getBatch(trainPath, videoPath, batchSize, frameNum, imgSize)
 
         local function feval(params)
+            -- get new parameters
+            if params ~= parameters then
+                parameters:copy(params)
+            end
+
+            -- reset gradients
             gradParams:zero()
 
             local outputs = model:forward(batchInputs)
@@ -46,7 +52,7 @@ function train(iterations, learningRate, learningDecay, batchSize, frameNum, img
             return loss,gradParams
         end
 
-        optim.sgd(feval, params, optimState)
+        optim.sgd(feval, parameters, optimState)
 
 		-- call train_util.lua to compute the test accuracy
 		local a = accuracy(model, testset)
