@@ -80,6 +80,7 @@ function train(iterations, learningRate, learningDecay, batchSize, frameNum, img
         gnuplot.plotflush()
         gnuplot.close()
     end
+    -- untested
     
     -- save the model in the end of the training
     model:clearState()
