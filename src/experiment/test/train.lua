@@ -19,6 +19,7 @@ require "../../util/plot_utils"
 -- configurations
 gpuFlag = true -- set running mode
 imgSize = 16
+gpus = {1,2}
 
 trainPath = "../../../data/split1/train"
 testPath = "../../../data/split1/test"
@@ -33,23 +34,24 @@ iteration = 200 -- define iteration num
 frameNum = 20
 channelNum = 3
 classNum = 51
-batchSize = 2 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+batchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 
 -- model definition
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
-	:add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
+	:add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
 -- initialize a parallel data table
 net = nn.DataParallelTable(1)
-net:add(rnn, {1,2,3,4,5,6,7,8})
+net:add(rnn, gpus)
 
 -- build criterion
 criterion = nn.ClassNLLCriterion()
 
 -- transfer the net to gpu if gpu mode is on
-
-net = net:cuda()
-criterion = criterion:cuda()
+if gpuFlag then
+	net = net:cuda()
+	criterion = criterion:cuda()
+end
 
 -- Try to use optnet to reduce memory usage.
 --input = torch.Tensor(classNum, frameNum, channelNum, imgSize, imgSize):zero()
