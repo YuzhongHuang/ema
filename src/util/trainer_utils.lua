@@ -15,16 +15,10 @@ function train(optimState, trainParams, paths, model, criterion)
     local optimState = optimState
 
     -- decoding train parameters
-    iteration = trainParams["iteration"]
-    frameNum = trainParams["frameNum"]
-    batchSize = trainParams["batchSize"]
-    imgSize = trainParams["imgSize"]
-
-    -- call getTest() to generate test data
-    local testset = getTest(paths["test"], paths["video"], frameNum, batchSize, imgSize)
-
-    -- initialize an accuracy table to write down accuracies in each epoch 
-    local accuracy_table = {}
+    local iteration = trainParams["iteration"]
+    local frameNum = trainParams["frameNum"]
+    local batchSize = trainParams["batchSize"]
+    local imgSize = trainParams["imgSize"]
 	
     for epoch=1,iteration do
         print('Current Epoch: '..epoch)
@@ -45,11 +39,7 @@ function train(optimState, trainParams, paths, model, criterion)
 
             local outputs = model:forward(batchInputs)
             local loss = criterion:forward(outputs, batchLabels)
-            print('Train Error '..loss)
-
-            local accuracy = accuracy(model, testset)
-            print("Test Accuracy "..accuracy)
-            accuracy_table[epoch] = accuracy		
+            print('Train Error '..loss)	
 
             local dloss_doutput = criterion:backward(outputs, batchLabels)
             model:backward(batchInputs, dloss_doutput)
@@ -59,17 +49,14 @@ function train(optimState, trainParams, paths, model, criterion)
 
         optim.sgd(feval, parameters, optimState)
 
-		-- call train_util.lua to compute the test accuracy
-		local a = accuracy(model, testset)
-		print('Test Accuracy '..a)
-
         model:zeroGradParameters() 
         model:forget()
-    
-        torch.save('accuracy.t7', accuracy_table)
     end
 
-    -- save the model in the end of the training
+    -- clear model state to minimize memory
     model:clearState()
+    -- save the model
     torch.save('model.t7', model)
+
+    return model
 end
