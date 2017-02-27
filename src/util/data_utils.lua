@@ -8,8 +8,7 @@ require 'cutorch'
 require 'cunn'
 require 'image'
 
---math.randomseed(os.time())
-math.randomseed(86788)
+math.randomseed(os.time())
 
 -- getTest(path) return a table with a video tensor and a label tensor
 function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
