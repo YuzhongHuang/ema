@@ -53,13 +53,7 @@ if gpuFlag then
 	criterion = criterion:cuda()
 end
 
--- Try to use optnet to reduce memory usage.
---input = torch.Tensor(classNum, frameNum, channelNum, imgSize, imgSize):zero()
---opts = {inplace=true, mode='training'}
---optnet = require 'optnet'
---optnet.optimizeMemory(rnn, input, opts)
-
---cudnn.convert(rnn, cudnn)
---cudnn.convert(criterion, cudnn)
+-- TODO: use optnet to reduce memory usage
+-- TODO: use cudnn to optimize
 
 a = train(iteration, learningRate, learningDecay, batchSize, frameNum, imgSize, net, criterion, trainPath, testPath, videoPath)
