@@ -74,7 +74,7 @@ function getEpoch(trainsets, videoPath, frameNum, imgSize)
         end 
     end
 
-    return batchPaths, torch.Tensor(batchLabels):cuda()
+    return Paths, torch.Tensor(Labels):cuda()
 end
 
 function getVideo(paths, frameNum, imgSize)
