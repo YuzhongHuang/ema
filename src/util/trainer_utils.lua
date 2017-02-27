@@ -15,10 +15,10 @@ function train(optimState, trainParams, paths, model, criterion)
     local optimState = optimState
 
     -- decoding train parameters
-    local iteration = trainParams["iteration"]
-    local frameNum = trainParams["frameNum"]
-    local batchSize = trainParams["batchSize"]
-    local imgSize = trainParams["imgSize"]
+    local iteration = trainParams.iteration
+    local frameNum = trainParams.frameNum
+    local batchSize = trainParams.batchSize
+    local imgSize = trainParams.imgSize
 	
     for epoch=1,iteration do
         print('Current Epoch: '..epoch)
@@ -26,7 +26,7 @@ function train(optimState, trainParams, paths, model, criterion)
         local parameters, gradParams = model:getParameters()
 
         -- call getBatch() to generate batchInputs and batchLabels
-        local batchInputs, batchLabels = getBatch(paths["train"], paths["video"], batchSize, frameNum, imgSize)
+        local batchInputs, batchLabels = getBatch(paths.train, paths.video, batchSize, frameNum, imgSize)
 
         local function feval(params)
             -- get new parameters
