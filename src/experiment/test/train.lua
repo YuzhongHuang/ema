@@ -14,8 +14,6 @@ require "../../util/train_utils"
 require "../../util/trainer_utils"
 require "../../util/plot_utils"
 
---torch.setdefaulttensortype('torch.FloatTensor') -- save some memory with FloatTensor data type
-
 -- configurations
 gpuFlag = true -- set running mode
 imgSize = 16
