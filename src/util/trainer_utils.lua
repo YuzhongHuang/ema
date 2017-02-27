@@ -68,6 +68,19 @@ function train(iterations, learningRate, learningDecay, batchSize, frameNum, img
 
     end
 
+    -- for debugging purpose, save weight gradient
+    local currentWeights, currentGradWeights = model:parameters()
+
+    for i = 1, currentGradWeights:nElements
+        gnuplot.pdffigure('test.pdf')
+        gnuplot.plot({'Histogram of Gradients',currentGradWeights[i]})
+        gnuplot.plot({'Histogram of Gradients',currentWeights[i]})
+        --gnuplot.xlabel('X')
+        --gnuplot.ylabel('Y')
+        gnuplot.plotflush()
+        gnuplot.close()
+    end
+    
     -- save the model in the end of the training
     model:clearState()
     torch.save('model.t7', model)
