@@ -11,22 +11,15 @@ require "./train_utils"
 require "./data_utils"
 
 
-function train(optimState, trainParams, paths, model, criterion)
+function train(optimState, opt, trainset, model, criterion)
     local optimState = optimState
-
-    -- decoding train parameters
-    local iteration = trainParams.iteration
-    local frameNum = trainParams.frameNum
-    local batchSize = trainParams.batchSize
-    local imgSize = trainParams.imgSize
 	
-    for epoch=1,iteration do
+    for epoch=1,opt.iteration do
         print('Current Epoch: '..epoch)
 
         local parameters, gradParams = model:getParameters()
 
         -- call getBatch() to generate batchInputs and batchLabels
-        local batchInputs, batchLabels = getBatch(paths.train, paths.video, batchSize, frameNum, imgSize)
 
         local function feval(params)
             -- get new parameters

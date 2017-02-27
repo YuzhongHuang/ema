@@ -36,10 +36,15 @@ channelNum = 3
 classNum = 51
 batchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 
+-- get the train and test dataset's paths and labels
+trainset = {}
+testset = {}
+trainset.paths, trainset.labels = getEpoch(trainPath, videoPath, frameNum, imgSize)
+testset.paths, testset.labels = getEpoch(testPath, videoPath, frameNum, imgSize)
+
 -- encoding parameters into tables
-paths = {train=trainPath, test=testPath, video=videoPath}
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
-trainParams = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
+opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
@@ -66,6 +71,6 @@ end
 -- TODO: use cudnn to optimize
 
 -- call training function
-trained_model = train(optimState, trainParams, paths, net, criterion)
+trained_model = train(optimState, opt, trainset, net, criterion)
 -- test trained model with test dataset
 accuracy(trained_model, getTest(paths.test, paths.video, frameNum, batchSize, imgSize))
