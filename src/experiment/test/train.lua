@@ -27,9 +27,9 @@ testPath = "../../../data/split1/test"
 videoPath = "../../../data/frames"
 
 -- hyper parameters
-learningRate = 0.005 -- define the learning rate
+learningRate = 0.005
 learningDecay = 0.005
-iteration = 200 -- define iteration num
+iteration = 200 -- #epochs
 momentum = 0.5
 
 -- parameters for building the network
