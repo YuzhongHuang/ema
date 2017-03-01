@@ -36,6 +36,9 @@ function train(optimState, opt, trainset, model, criterion)
                 table.insert(targets, target)
             end
 
+            -- convert labels to cuda tensors
+            targets = torch.Tensor(targets):cuda()
+
             -- create closure to evaluate f(X) and df/dX
 
             local function feval(params)
