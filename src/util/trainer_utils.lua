@@ -28,7 +28,7 @@ function train(optimState, opt, trainset, model, criterion)
             local paths = {}
             local targets = {}
 
-            for i = t, math.min(t+opt.batchSize-1, dataset:size()) do
+            for i = t, math.min(t+opt.batchSize-1, #(trainset.paths)) do
                 -- load new sample
                 local path = trainset.paths[i]
                 local target = trainset.labels[i]
