@@ -35,27 +35,6 @@ function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
     return t
 end
 
-function getBatch(trainsets, videoPath, batchSize, frameNum, imgSize)
-    local classes = ls(trainsets)
-    local batchPaths = {}
-    local batchLabels = {}
-
-    for i=1, #classes do
-        local path = trainsets..'/'..classes[i]..'/train.txt'
-        local framePath = videoPath..'/'..classes[i]
-        local lst = read_and_process(path, framePath)
-        local indices = getIndices(70, batchSize) -- 70 elements per catergory for training
-
-        -- get #batchSize many videos from each class
-        for j=1, batchSize do
-            table.insert(batchPaths, lst[indices[j]])
-            table.insert(batchLabels, i)
-        end
-    end
-
-    return getVideo(batchPaths, frameNum, imgSize), torch.Tensor(batchLabels):cuda()
-end
-
 function getEpoch(trainsets, videoPath, frameNum, imgSize)
     local classes = ls(trainsets)
     local Paths = {}
