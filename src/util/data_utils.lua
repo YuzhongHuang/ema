@@ -8,8 +8,7 @@ require 'cutorch'
 require 'cunn'
 require 'image'
 
---math.randomseed(os.time())
-math.randomseed(86788)
+math.randomseed(os.time())
 
 -- getTest(path) return a table with a video tensor and a label tensor
 function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
@@ -36,25 +35,25 @@ function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
     return t
 end
 
-function getBatch(trainsets, videoPath, batchSize, frameNum, imgSize)
+function getEpoch(trainsets, videoPath, frameNum, imgSize)
     local classes = ls(trainsets)
-    local batchPaths = {}
-    local batchLabels = {}
+    local Paths = {}
+    local Labels = {}
 
     for i=1, #classes do
         local path = trainsets..'/'..classes[i]..'/train.txt'
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
-        local indices = getIndices(70, batchSize) -- 70 elements per catergory for training
+        local indices = getIndices(70, 70) -- get all 70 shuffled elements per catergory for training
 
-        -- get #batchSize many videos from each class
+        -- get all 70 trainning elements many videos from each class
         for j=1, batchSize do
-            table.insert(batchPaths, lst[indices[j]])
-            table.insert(batchLabels, i)
-        end
+            table.insert(Paths, lst[indices[j]])
+            table.insert(Labels, i)
+        end 
     end
 
-    return getVideo(batchPaths, frameNum, imgSize), torch.Tensor(batchLabels):cuda()
+    return Paths, torch.Tensor(Labels):cuda()
 end
 
 function getVideo(paths, frameNum, imgSize)

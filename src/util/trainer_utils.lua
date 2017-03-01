@@ -11,65 +11,71 @@ require "./train_utils"
 require "./data_utils"
 
 
-function train(iterations, learningRate, learningDecay, batchSize, frameNum, imgSize, model, criterion, trainPath, testPath, videoPath)
-    local optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = 0.5}
-
-    -- call data_util.lua to generate test data
-    -- ****Comment this block out for full dataset training*****
-    local testset = getTest(testPath, videoPath, frameNum, batchSize, imgSize)
-    local batchInputs, batchLabels = getBatch(trainPath, videoPath, batchSize, frameNum, imgSize)
-    -- ****Comment this block out for full dataset training*****
-
-    -- initialize an accuracy table to write down accuracies in each epoch 
-    local accy_table = {}
+function train(optimState, opt, trainset, model, criterion)
+    local optimState = optimState
 	
-    for epoch=1,iterations do
-        print('Epoch '..epoch)
+    -- epoch loop
+    for epoch = 1, opt.iteration do
+        print('Current Epoch: '..epoch)
 
-        local params, gradParams = model:getParameters()
+        local parameters, gradParams = model:getParameters()
 
-        -- call data_util.lua to generate batchInputs and batchLabels
-        
-        -- ****UnComment this block out for full dataset training*****
-        --local batchInputs, batchLabels = getBatch(trainPath, videoPath, batchSize, frameNum, imgSize)
-	-- ****UnComment this block out for full dataset training*****
+        -- loop through all the data with minibatches
+        for t = 1, #(trainset.paths), opt.batchSize do
+            print('Batch progress: '..t..'/'#(trainset.paths))
 
-        local function feval(params)
-            gradParams:zero()
+            -- create minibatches
+            local paths = {}
+            local targets = {}
 
-            local outputs = model:forward(batchInputs)
-            local loss = criterion:forward(outputs, batchLabels)
-            print('Train Error '..loss)
-            
-	    -- ****UnComment this block out for full dataset training*****
-            --local testset = getTest(testPath, videoPath, frameNum, batchSize, imgSize)
-            -- ****UnComment this block out for full dataset training*****
+            for i = t, math.min(t+opt.batchSize-1, dataset:size()) do
+                -- load new sample
+                local path = trainset.paths[i]
+                local target = trainset.labels[i]
+                table.insert(paths, path)
+                table.insert(targets, target)
+            end
 
-            local accy = accuracy(model, testset)
-            print("Test Accuracy "..accy)
-            accy_table[epoch] = accy		
+            -- create closure to evaluate f(X) and df/dX
 
-            local dloss_doutput = criterion:backward(outputs, batchLabels)
-            model:backward(batchInputs, dloss_doutput)
+            local function feval(params)
+                -- just in case:
+                collectgarbage()
 
-            return loss,gradParams
+                -- get new parameters
+                if params ~= parameters then
+                    parameters:copy(params)
+                end
+
+                -- reset gradients
+                gradParams:zero()
+
+                -- get batch input from batch paths
+                local input = getVideo(paths, opt.FrameNum, opt.imgSize)
+
+                -- evaluate function for complete mini batch
+                local outputs = model:forward(inputs)
+                local f = criterion:forward(outputs, targets)
+
+                -- estimate df/dW
+                local df_do = criterion:backward(outputs, targets)
+                model:backward(inputs, df_do)
+
+                -- TODO: consider using L1 and L2 penalties
+
+                -- return f and df/dX
+                return f, gradParams
+            end
         end
 
-        optim.sgd(feval, params, optimState)
-
-		-- call train_util.lua to compute the test accuracy
-		-- local a = accuracy(model, testset)
-		-- print('Test Accuracy '..a)
-
-        model:zeroGradParameters() 
+        optim.sgd(feval, parameters, optimState)
         model:forget()
-    
-        torch.save('accuracy.t7', accy_table)
-
     end
 
-    -- save the model in the end of the training
+    -- clear model state to minimize memory
     model:clearState()
+    -- save the model
     torch.save('model.t7', model)
-    torch.save('accuracy.t7', accy_table)
+
+    return model
 end
