@@ -51,7 +51,7 @@ function train(optimState, opt, trainset, model, criterion)
                 gradParams:zero()
 
                 -- get batch input from batch paths
-                local input = getVideo(paths, opt.FrameNum, opt.imgSize)
+                local input = getVideo(paths, opt.frameNum, opt.imgSize)
 
                 -- evaluate function for complete mini batch
                 local outputs = model:forward(inputs)
