@@ -49,7 +49,7 @@ opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgS
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
-	:add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
+	:add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
 -- initialize a parallel data table for gpu
 if next(gpus) == nil then
