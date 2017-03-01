@@ -19,6 +19,7 @@ function train(optimState, opt, trainset, model, criterion)
         print('Current Epoch: '..epoch)
 
         local parameters, gradParams = model:getParameters()
+        local epochError = 0
 
         -- loop through all the data with minibatches
         for t = 1, #(trainset.paths), opt.batchSize do
@@ -66,13 +67,20 @@ function train(optimState, opt, trainset, model, criterion)
 
                 -- TODO: consider using L1 and L2 penalties
 
+                print("Batch error: "..f)
+                epochError = epochError + f
+
                 -- return f and df/dX
                 return f, gradParams
             end
 
             optim.sgd(feval, parameters, optimState)
             model:forget()
-        end        
+        end 
+
+        --update epoch error
+        epochError = epochError*opt.batchSize/(#(trainset.paths))
+        print('Epoch error: '.. epochError)       
     end
 
     -- clear model state to minimize memory
