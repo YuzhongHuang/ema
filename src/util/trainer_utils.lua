@@ -66,10 +66,10 @@ function train(optimState, opt, trainset, model, criterion)
                 -- return f and df/dX
                 return f, gradParams
             end
-        end
 
-        optim.sgd(feval, parameters, optimState)
-        model:forget()
+            optim.sgd(feval, parameters, optimState)
+            model:forget()
+        end        
     end
 
     -- clear model state to minimize memory
