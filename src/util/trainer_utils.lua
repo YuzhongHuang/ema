@@ -22,7 +22,7 @@ function train(optimState, opt, trainset, model, criterion)
 
         -- loop through all the data with minibatches
         for t = 1, #(trainset.paths), opt.batchSize do
-            print('Batch progress: '..t..'/'#(trainset.paths))
+            print('Batch progress: '..t..'/'..#(trainset.paths))
 
             -- create minibatches
             local paths = {}
