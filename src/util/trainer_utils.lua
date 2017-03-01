@@ -54,12 +54,12 @@ function train(optimState, opt, trainset, model, criterion)
                 local input = getVideo(paths, opt.frameNum, opt.imgSize)
 
                 -- evaluate function for complete mini batch
-                local outputs = model:forward(inputs)
+                local outputs = model:forward(input)
                 local f = criterion:forward(outputs, targets)
 
                 -- estimate df/dW
                 local df_do = criterion:backward(outputs, targets)
-                model:backward(inputs, df_do)
+                model:backward(input, df_do)
 
                 -- TODO: consider using L1 and L2 penalties
 
