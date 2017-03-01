@@ -14,35 +14,61 @@ require "./data_utils"
 function train(optimState, opt, trainset, model, criterion)
     local optimState = optimState
 	
-    for epoch=1,opt.iteration do
+    -- epoch loop
+    for epoch = 1, opt.iteration do
         print('Current Epoch: '..epoch)
 
         local parameters, gradParams = model:getParameters()
 
-        -- call getBatch() to generate batchInputs and batchLabels
+        -- loop through all the data with minibatches
+        for t = 1, #(trainset.paths), opt.batchSize do
+            print('Batch progress: '..t..'/'#(trainset.paths))
 
-        local function feval(params)
-            -- get new parameters
-            if params ~= parameters then
-                parameters:copy(params)
+            -- create minibatches
+            local paths = {}
+            local targets = {}
+
+            for i = t, math.min(t+opt.batchSize-1, dataset:size()) do
+                -- load new sample
+                local path = trainset.paths[i]
+                local target = trainset.labels[i]
+                table.insert(paths, path)
+                table.insert(targets, target)
             end
 
-            -- reset gradients
-            gradParams:zero()
+            -- create closure to evaluate f(X) and df/dX
 
-            local outputs = model:forward(batchInputs)
-            local loss = criterion:forward(outputs, batchLabels)
-            print('Train Error '..loss)	
+            local function feval(params)
+                -- just in case:
+                collectgarbage()
 
-            local dloss_doutput = criterion:backward(outputs, batchLabels)
-            model:backward(batchInputs, dloss_doutput)
+                -- get new parameters
+                if params ~= parameters then
+                    parameters:copy(params)
+                end
 
-            return loss,gradParams
+                -- reset gradients
+                gradParams:zero()
+
+                -- get batch input from batch paths
+                local input = getVideo(paths, opt.FrameNum, opt.imgSize)
+
+                -- evaluate function for complete mini batch
+                local outputs = model:forward(inputs)
+                local f = criterion:forward(outputs, targets)
+
+                -- estimate df/dW
+                local df_do = criterion:backward(outputs, targets)
+                model:backward(inputs, df_do)
+
+                -- TODO: consider using L1 and L2 penalties
+
+                -- return f and df/dX
+                return f, gradParams
+            end
         end
 
         optim.sgd(feval, parameters, optimState)
-
-        model:zeroGradParameters() 
         model:forget()
     end
 

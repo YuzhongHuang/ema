@@ -34,7 +34,8 @@ momentum = 0.5
 frameNum = 20
 channelNum = 3
 classNum = 51
-batchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+batchSize = relativeBatchSize * classNum
 
 -- get the train and test dataset's paths and labels
 trainset = {}
@@ -73,4 +74,4 @@ end
 -- call training function
 trained_model = train(optimState, opt, trainset, net, criterion)
 -- test trained model with test dataset
-accuracy(trained_model, getTest(paths.test, paths.video, frameNum, batchSize, imgSize))
+accuracy(trained_model, getTest(paths.test, paths.video, frameNum, relativeBatchSize, imgSize))
