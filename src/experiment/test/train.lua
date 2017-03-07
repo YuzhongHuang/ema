@@ -20,9 +20,9 @@ require "../../util/plot_utils"
 gpuFlag = true -- set running mode
 imgSize = 16
 
-trainPath = "../../../data/split1/train"
-testPath = "../../../data/split1/test"
-videoPath = "../../../data/frames"
+trainPath = "../../../hmdbData/split1/train"
+testPath = "../../../hmdbData/split1/test"
+videoPath = "../../../hmdbData/frames"
 
 -- hyper parameters
 learningRate = 0.005 -- define the learning rate

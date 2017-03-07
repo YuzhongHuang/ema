@@ -1,4 +1,5 @@
-data/
+hmdbData/
+kthData/
 src/archive/
 src/pre-trained-models/
 
