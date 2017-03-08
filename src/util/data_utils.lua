@@ -35,7 +35,7 @@ function getTest(testpath, videoPath, frameNum, batchSize, imgSize, testBatchTot
     return t
 end
 
-function getEpoch(trainsets, videoPath, frameNum, imgSize, trainBatchTotal)
+function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal)
     local classes = ls(trainsets)
     local Paths = {}
     local Labels = {}
