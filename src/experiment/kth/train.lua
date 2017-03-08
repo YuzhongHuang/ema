@@ -56,7 +56,7 @@ rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
 	:add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
 -- initialize a parallel data table for gpu
-if next(gpus) == nil then
+if gpus ~= nil then
 	net = nn.DataParallelTable(1)
 	net:add(rnn, gpus)
 else
