@@ -14,50 +14,64 @@ require "../../util/train_utils"
 require "../../util/trainer_utils"
 require "../../util/plot_utils"
 
---torch.setdefaulttensortype('torch.FloatTensor') -- save some memory with FloatTensor data type
-
 -- configurations
 gpuFlag = true -- set running mode
 imgSize = 16
+gpus = {}
 
-trainPath = "../../../hmdbData/split1/train"
-testPath = "../../../hmdbData/split1/test"
-videoPath = "../../../hmdbData/frames"
+-- data loading path
+trainPath = "../../../kthData/split1/train"
+testPath = "../../../kthData/split1/test"
+videoPath = "../../../kthData/frames"
 
 -- hyper parameters
-learningRate = 0.005 -- define the learning rate
+learningRate = 0.005
 learningDecay = 0.005
-iteration = 200 -- define iteration num
+iteration = 20 -- #epochs
+momentum = 0.5
 
 -- parameters for building the network
-frameNum = 20
+frameNum = 40
 channelNum = 3
-classNum = 51
-batchSize = 2 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+classNum = 6
+relativeBatchSize = 10 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+batchSize = relativeBatchSize * classNum
 
--- model definition
+-- get the train and test dataset's paths and labels
+trainset = {}
+testset = {}
+trainset.paths, trainset.labels = getEpoch(trainPath, videoPath, frameNum, imgSize)
+testset.paths, testset.labels = getEpoch(testPath, videoPath, frameNum, imgSize)
+
+-- encoding parameters into tables
+optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
+opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
+
+-- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
 	:add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
--- initialize a parallel data table
-net = nn.DataParallelTable(1)
-net:add(rnn, {1,2,3,4,5,6,7,8})
+-- initialize a parallel data table for gpu
+if next(gpus) == nil then
+	net = nn.DataParallelTable(1)
+	net:add(rnn, gpus)
+else
+	net = rnn
+end
 
 -- build criterion
 criterion = nn.ClassNLLCriterion()
 
 -- transfer the net to gpu if gpu mode is on
+if gpuFlag then
+	net = net:cuda()
+	criterion = criterion:cuda()
+end
 
-net = net:cuda()
-criterion = criterion:cuda()
+-- TODO: use optnet to reduce memory usage
+-- TODO: use cudnn to optimize
 
--- Try to use optnet to reduce memory usage.
---input = torch.Tensor(classNum, frameNum, channelNum, imgSize, imgSize):zero()
---opts = {inplace=true, mode='training'}
---optnet = require 'optnet'
---optnet.optimizeMemory(rnn, input, opts)
-
---cudnn.convert(rnn, cudnn)
---cudnn.convert(criterion, cudnn)
-
-a = train(iteration, learningRate, learningDecay, batchSize, frameNum, imgSize, net, criterion, trainPath, testPath, videoPath)
+-- call training function
+trained_model = train(optimState, opt, trainset, net, criterion)
+-- test trained model with test dataset
+accuracy(trained_model, getTest(paths.test, paths.video, frameNum, relativeBatchSize, imgSize))
