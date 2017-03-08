@@ -47,13 +47,13 @@ function getEpoch(trainsets, videoPath, frameNum, imgSize)
         local indices = getIndices(70, 70) -- get all 70 shuffled elements per catergory for training
 
         -- get all 70 trainning elements many videos from each class
-        for j=1, batchSize do
+        for j=1, 70 do
             table.insert(Paths, lst[indices[j]])
             table.insert(Labels, i)
         end 
     end
 
-    return Paths, torch.Tensor(Labels):cuda()
+    return Paths, Labels
 end
 
 function getVideo(paths, frameNum, imgSize)

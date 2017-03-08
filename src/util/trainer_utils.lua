@@ -19,22 +19,26 @@ function train(optimState, opt, trainset, model, criterion)
         print('Current Epoch: '..epoch)
 
         local parameters, gradParams = model:getParameters()
+        local epochError = 0
 
         -- loop through all the data with minibatches
         for t = 1, #(trainset.paths), opt.batchSize do
-            print('Batch progress: '..t..'/'#(trainset.paths))
+            print('Batch progress: '..t..'/'..#(trainset.paths))
 
             -- create minibatches
             local paths = {}
             local targets = {}
 
-            for i = t, math.min(t+opt.batchSize-1, dataset:size()) do
+            for i = t, math.min(t+opt.batchSize-1, #(trainset.paths)) do
                 -- load new sample
                 local path = trainset.paths[i]
                 local target = trainset.labels[i]
                 table.insert(paths, path)
                 table.insert(targets, target)
             end
+
+            -- convert labels to cuda tensors
+            targets = torch.Tensor(targets):cuda()
 
             -- create closure to evaluate f(X) and df/dX
 
@@ -51,25 +55,32 @@ function train(optimState, opt, trainset, model, criterion)
                 gradParams:zero()
 
                 -- get batch input from batch paths
-                local input = getVideo(paths, opt.FrameNum, opt.imgSize)
+                local input = getVideo(paths, opt.frameNum, opt.imgSize)
 
                 -- evaluate function for complete mini batch
-                local outputs = model:forward(inputs)
+                local outputs = model:forward(input)
                 local f = criterion:forward(outputs, targets)
 
                 -- estimate df/dW
                 local df_do = criterion:backward(outputs, targets)
-                model:backward(inputs, df_do)
+                model:backward(input, df_do)
 
                 -- TODO: consider using L1 and L2 penalties
+
+                print("Batch error: "..f)
+                epochError = epochError + f
 
                 -- return f and df/dX
                 return f, gradParams
             end
-        end
 
-        optim.sgd(feval, parameters, optimState)
-        model:forget()
+            optim.sgd(feval, parameters, optimState)
+            model:forget()
+        end 
+
+        --update epoch error
+        epochError = epochError*opt.batchSize/(#(trainset.paths))
+        print('Epoch error: '.. epochError)       
     end
 
     -- clear model state to minimize memory
