@@ -15,7 +15,7 @@ require "../../util/trainer_utils"
 require "../../util/plot_utils"
 
 -- configurations
-gpuFlag = true -- set running mode
+gpuFlag = true 	-- set running mode
 imgSize = 16
 gpus = nil
 
@@ -24,6 +24,9 @@ trainPath = "../../../kthData/split1/train"
 testPath = "../../../kthData/split1/test"
 videoPath = "../../../kthData/frames"
 
+trainName = "/train.txt" 	-- name of the train split file
+testName = "/test.txt"		-- name of the test split file
+
 -- data parameters
 trainBatchTotal = 75
 testBatchTotal = 24
@@ -31,19 +34,19 @@ testBatchTotal = 24
 -- hyper parameters
 learningRate = 0.005
 learningDecay = 0.005
-iteration = 20 -- #epochs
+iteration = 20 	-- #epochs
 momentum = 0.5
 
 -- parameters for building the network
 frameNum = 40
 channelNum = 3
 classNum = 6
-relativeBatchSize = 10 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 10 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- get the train dataset's paths and labels
 trainset = {}
-trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize, trainBatchTotal)
+trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize, trainBatchTotal, trainName)
 
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}

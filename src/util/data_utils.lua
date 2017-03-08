@@ -35,13 +35,13 @@ function getTest(testpath, videoPath, frameNum, batchSize, imgSize, testBatchTot
     return t
 end
 
-function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal)
+function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, fileName)
     local classes = ls(trainsets)
     local Paths = {}
     local Labels = {}
 
     for i=1, #classes do
-        local path = trainsets..'/'..classes[i]..'/train.txt'
+        local path = trainsets..'/'..classes[i]..fileName
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
         local indices = getIndices(trainBatchTotal, trainBatchTotal) -- get all shuffled elements per catergory for training

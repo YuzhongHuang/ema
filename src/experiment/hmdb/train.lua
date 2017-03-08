@@ -15,7 +15,7 @@ require "../../util/trainer_utils"
 require "../../util/plot_utils"
 
 -- configurations
-gpuFlag = true -- set running mode
+gpuFlag = true 	-- set running mode
 imgSize = 16
 gpus = {1,2,3,4,5,6,7,8}
 
@@ -23,6 +23,9 @@ gpus = {1,2,3,4,5,6,7,8}
 trainPath = "../../../hmdbData/split1/train"
 testPath = "../../../hmdbData/split1/test"
 videoPath = "../../../hmdbData/frames"
+
+trainName = "/train.txt" 	-- name of the train split file
+testName = "/test.txt"		-- name of the test split file
 
 -- hyper parameters
 learningRate = 0.005
@@ -34,12 +37,12 @@ momentum = 0.5
 frameNum = 20
 channelNum = 3
 classNum = 51
-relativeBatchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 1 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- get the train dataset's paths and labels
 trainset = {}
-trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize)
+trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize, trainName)
 
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
