@@ -44,7 +44,7 @@ batchSize = relativeBatchSize * classNum
 -- get the train and test dataset's paths and labels
 trainset = {}
 testset = {}
-trainset.paths, trainset.labels = getEpoch(trainPath, videoPath, frameNum, imgSize. trainBatchTotal)
+trainset.paths, trainset.labels = getEpoch(trainPath, videoPath, frameNum, imgSize, trainBatchTotal)
 testset.paths, testset.labels = getEpoch(testPath, videoPath, frameNum, imgSize, testBatchTotal)
 
 -- encoding parameters into tables
