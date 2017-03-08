@@ -11,7 +11,7 @@ require 'image'
 math.randomseed(os.time())
 
 -- getTest(path) return a table with a video tensor and a label tensor
-function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
+function getTest(testpath, videoPath, frameNum, batchSize, imgSize, testBatchTotal)
     local classes = ls(testPath)
     local videoPaths = {}
     local testLabels = {}
@@ -21,7 +21,7 @@ function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
         local path = testPath..'/'..classes[i]..'/test.txt'
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
-        local indices = getIndices(30, batchSize)
+        local indices = getIndices(testBatchTotal, batchSize)
 
         for j=1, batchSize do
             table.insert(videoPaths, lst[indices[j]])
@@ -35,7 +35,7 @@ function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
     return t
 end
 
-function getEpoch(trainsets, videoPath, frameNum, imgSize)
+function getEpoch(trainsets, videoPath, frameNum, imgSize, trainBatchTotal)
     local classes = ls(trainsets)
     local Paths = {}
     local Labels = {}
@@ -44,7 +44,7 @@ function getEpoch(trainsets, videoPath, frameNum, imgSize)
         local path = trainsets..'/'..classes[i]..'/train.txt'
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
-        local indices = getIndices(70, 70) -- get all 70 shuffled elements per catergory for training
+        local indices = getIndices(trainBatchTotal, trainBatchTotal) -- get all shuffled elements per catergory for training
 
         -- get all 70 trainning elements many videos from each class
         for j=1, 70 do

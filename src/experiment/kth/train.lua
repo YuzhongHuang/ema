@@ -24,6 +24,10 @@ trainPath = "../../../kthData/split1/train"
 testPath = "../../../kthData/split1/test"
 videoPath = "../../../kthData/frames"
 
+-- data parameters
+trainBatchTotal = 75
+testBatchTotal = 24
+
 -- hyper parameters
 learningRate = 0.005
 learningDecay = 0.005
@@ -40,8 +44,8 @@ batchSize = relativeBatchSize * classNum
 -- get the train and test dataset's paths and labels
 trainset = {}
 testset = {}
-trainset.paths, trainset.labels = getEpoch(trainPath, videoPath, frameNum, imgSize)
-testset.paths, testset.labels = getEpoch(testPath, videoPath, frameNum, imgSize)
+trainset.paths, trainset.labels = getEpoch(trainPath, videoPath, frameNum, imgSize. trainBatchTotal)
+testset.paths, testset.labels = getEpoch(testPath, videoPath, frameNum, imgSize, testBatchTotal)
 
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
@@ -74,4 +78,4 @@ end
 -- call training function
 trained_model = train(optimState, opt, trainset, net, criterion)
 -- test trained model with test dataset
-accuracy(trained_model, getTest(paths.test, paths.video, frameNum, relativeBatchSize, imgSize))
+accuracy(trained_model, getTest(paths.test, paths.video, frameNum, relativeBatchSize, imgSize, testBatchTotal))
