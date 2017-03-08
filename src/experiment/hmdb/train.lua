@@ -27,6 +27,10 @@ videoPath = "../../../hmdbData/frames"
 trainName = "/train.txt" 	-- name of the train split file
 testName = "/test.txt"		-- name of the test split file
 
+-- data parameters
+trainBatchTotal = 70
+testBatchTotal = 30
+
 -- hyper parameters
 learningRate = 0.005
 learningDecay = 0.005
@@ -75,4 +79,4 @@ end
 -- call training function
 trained_model = train(optimState, opt, trainset, net, criterion)
 -- test trained model with test dataset
-accuracy(trained_model, getTest(paths.test, paths.video, frameNum, relativeBatchSize, imgSize))
+accuracy(trained_model, getTest(paths.test, paths.video, frameNum, imgSize, testBatchTotal, testName))

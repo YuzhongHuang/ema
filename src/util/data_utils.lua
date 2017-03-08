@@ -11,26 +11,15 @@ require 'image'
 math.randomseed(os.time())
 
 -- getTest(path) return a table with a video tensor and a label tensor
-function getTest(testpath, videoPath, frameNum, batchSize, imgSize, testBatchTotal)
-    local classes = ls(testPath)
-    local videoPaths = {}
-    local testLabels = {}
-    local t = {}
+function getTest(testpath, videoPath, frameNum, imgSize, testBatchTotal, testName)
+    local testSet = {}
+    local paths = {}
+    local labels = {}
 
-    for i=1, #classes do
-        local path = testPath..'/'..classes[i]..'/test.txt'
-        local framePath = videoPath..'/'..classes[i]
-        local lst = read_and_process(path, framePath)
-        local indices = getIndices(testBatchTotal, batchSize)
+    paths, labels = getDataPath(testPath, videoPath, frameNum, imgSize, testBatchTotal, testName)
 
-        for j=1, batchSize do
-            table.insert(videoPaths, lst[indices[j]])
-            table.insert(testLabels, i)
-        end
-    end
-
-    t.vids = getVideo(videoPaths, frameNum, imgSize)
-    t.labels = torch.Tensor(testLabels)
+    testSet.vids = getVideo(paths, frameNum, imgSize)
+    testSet.labels = torch.Tensor(labels):cuda()
 
     return t
 end
