@@ -46,8 +46,8 @@ function getEpoch(trainsets, videoPath, frameNum, imgSize, trainBatchTotal)
         local lst = read_and_process(path, framePath)
         local indices = getIndices(trainBatchTotal, trainBatchTotal) -- get all shuffled elements per catergory for training
 
-        -- get all 70 trainning elements many videos from each class
-        for j=1, 70 do
+        -- get all trainning elements many videos from each class
+        for j=1, trainBatchTotal do
             table.insert(Paths, lst[indices[j]])
             table.insert(Labels, i)
         end 
