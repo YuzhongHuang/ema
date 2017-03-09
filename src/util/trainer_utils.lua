@@ -22,8 +22,8 @@ function train(optimState, opt, trainset, model, criterion)
         local epochError = 0
 
         -- for testing purposes, will remove later
-        local testPath = "../../../hmdbData/split1/test"
-        local videoPath = "../../../hmdbData/frames"
+        local testPath = "../../../kthData/split1/test"
+        local videoPath = "../../../kthData/frames"
         local testSet = getTest(testPath, videoPath, opt.frameNum, opt.imgSize, opt.channelNum, 24, '/test.txt')
 
         -- loop through all the data with minibatches
