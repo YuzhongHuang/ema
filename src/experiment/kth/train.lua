@@ -32,7 +32,7 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.004
+learningRate = 0.002
 learningDecay = 0.005
 iteration = 1 	-- #epochs
 momentum = 0.5
