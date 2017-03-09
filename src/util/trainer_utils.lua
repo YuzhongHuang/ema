@@ -60,7 +60,6 @@ function train(optimState, opt, path, model, criterion)
 
                 -- reset gradients
                 gradParams:zero()
-                model:zeroGradParameters()
                 model:forget()
 
                 -- get batch input from batch paths
@@ -90,7 +89,7 @@ function train(optimState, opt, path, model, criterion)
         epochError = epochError*opt.batchSize/(#(trainset.paths))
         print('Epoch error: '.. epochError)       
 
-        print(accuracy(model, testSet))
+        print(accuracy(model, testset))
     end
 
     -- clear model state to minimize memory
