@@ -47,7 +47,7 @@ end
 
 function getVideo(paths, frameNum, imgSize, channelNum)
     -- local max = maxSequence(paths)
-    local batchInputs = torch.FloatTensor(#paths, frameNum, 3, imgSize, imgSize)
+    local batchInputs = torch.FloatTensor(#paths, frameNum, channelNum, imgSize, imgSize)
     for i=1, #paths do
         local path = paths[i]
 
