@@ -16,7 +16,7 @@ require "../../util/plot_utils"
 
 -- configurations
 gpuFlag = true 	-- set running mode
-imgSize = 16
+imgSize = 32
 gpus = nil
 
 -- data loading path
@@ -32,14 +32,14 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.001
+learningRate = 0.004
 learningDecay = 0.005
 iteration = 1 	-- #epochs
 momentum = 0.5
 
 -- parameters for building the network
-frameNum = 40
-channelNum = 3
+frameNum = 80
+channelNum = 1
 classNum = 6
 relativeBatchSize = 10 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
