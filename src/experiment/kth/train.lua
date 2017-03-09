@@ -47,10 +47,6 @@ classNum = 6
 relativeBatchSize = 10 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
--- get the train dataset's paths and labels
-trainset = {}
-trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize, trainBatchTotal, trainName)
-
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
 opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum, trainBatchTotal=trainBatchTotal, testBatchTotal=testBatchTotal}
