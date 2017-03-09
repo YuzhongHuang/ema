@@ -50,7 +50,7 @@ trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, im
 
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
-opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
+opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum}
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
