@@ -60,8 +60,7 @@ function train(optimState, opt, path, model, criterion)
 
                 -- reset gradients
                 gradParams:zero()
-                model:zeroGradParameters()
-                model:forget()
+		model:forget()
 
                 -- get batch input from batch paths
                 local input = getVideo(paths, opt.frameNum, opt.imgSize, opt.channelNum)
