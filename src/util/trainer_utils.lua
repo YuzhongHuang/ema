@@ -21,6 +21,11 @@ function train(optimState, opt, trainset, model, criterion)
         local parameters, gradParams = model:getParameters()
         local epochError = 0
 
+        -- for testing purposes, will remove later
+        local testPath = "../../../hmdbData/split1/test"
+        local videoPath = "../../../hmdbData/frames"
+        local testSet = getTest(testPath, videoPath, opt.frameNum, opt.imgSize, opt.channelNum, 24, '/test.txt')
+
         -- loop through all the data with minibatches
         for t = 1, #(trainset.paths), opt.batchSize do
             print('Batch progress: '..t..'/'..#(trainset.paths))
@@ -82,6 +87,8 @@ function train(optimState, opt, trainset, model, criterion)
         --update epoch error
         epochError = epochError*opt.batchSize/(#(trainset.paths))
         print('Epoch error: '.. epochError)       
+
+        print(accuracy(model, testSet)
     end
 
     -- clear model state to minimize memory
