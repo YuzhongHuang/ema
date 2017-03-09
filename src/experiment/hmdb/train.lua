@@ -79,4 +79,4 @@ end
 -- call training function
 trained_model = train(optimState, opt, trainset, net, criterion)
 -- test trained model with test dataset
-accuracy(trained_model, getTest(paths.test, paths.video, frameNum, imgSize, testBatchTotal, testName))
+accuracy(trained_model, getTest(testPath, videoPath, frameNum, imgSize, testBatchTotal, testName))
