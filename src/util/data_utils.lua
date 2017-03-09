@@ -21,7 +21,7 @@ function getTest(testpath, videoPath, frameNum, imgSize, testBatchTotal, testNam
     testSet.vids = getVideo(paths, frameNum, imgSize)
     testSet.labels = torch.Tensor(labels):cuda()
 
-    return t
+    return testSet
 end
 
 function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, fileName)
