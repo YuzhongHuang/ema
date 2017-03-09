@@ -88,7 +88,7 @@ function train(optimState, opt, trainset, model, criterion)
         epochError = epochError*opt.batchSize/(#(trainset.paths))
         print('Epoch error: '.. epochError)       
 
-        print(accuracy(model, testSet)
+        print(accuracy(model, testSet))
     end
 
     -- clear model state to minimize memory
