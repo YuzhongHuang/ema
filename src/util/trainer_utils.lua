@@ -63,7 +63,6 @@ function train(optimState, opt, path, model, criterion)
 		model:forget()
 
                 -- get batch input from batch paths
-                print(paths) -- for testing purposes, will remove later
                 local input = getVideo(paths, opt.frameNum, opt.imgSize, opt.channelNum)
 
                 -- evaluate function for complete mini batch
