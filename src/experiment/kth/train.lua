@@ -35,16 +35,16 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.002
+learningRate = 0.00004
 learningDecay = 0.005
 iteration = 10 	-- #epochs
-momentum = 0.5
+momentum = 0
 
 -- parameters for building the network
 frameNum = 80
 channelNum = 1
 classNum = 6
-relativeBatchSize = 10 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 6 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- encoding parameters into tables
@@ -53,7 +53,7 @@ opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgS
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
-	:add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
+	:add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then
