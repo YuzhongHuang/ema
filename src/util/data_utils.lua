@@ -49,9 +49,8 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
 
     -- separate paths and labels
     for i=1, #pathLabels do
-        print(split(pathLabels[i], " ")[1])
-        local path = split(pathLabels[i], " ")[0]
-        local label = tonumber(split(pathLabels[i], " ")[1])
+        local path = split(pathLabels[i], " ")[1]
+        local label = tonumber(split(pathLabels[i], " ")[2])
         table.insert(paths, path)
         table.insert(labels, label)
     end
