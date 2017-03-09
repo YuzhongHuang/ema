@@ -34,16 +34,20 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
         local path = trainsets..'/'..classes[i]..fileName
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
-        local indices = getIndices(trainBatchTotal, trainBatchTotal) -- get all shuffled elements per catergory for training
-
+        
+        -- get all shuffled elements per catergory for training
+        local indices = getIndices(trainBatchTotal, trainBatchTotal) 
+        
         -- get all trainning elements many videos from each class
         for j=1, trainBatchTotal do
-            table.insert(pathLabels, lst[indices[j]]..' '..i)
+            table.insert(pathLabels, lst[indices[j]]..' '..i)   -- combine paths and labels so for shuffling  
         end 
     end
 
-    shuffleTable(pathLabels)
 
+    shuffleTable(pathLabels)    -- shuffle among classes
+
+    -- separate paths and labels
     for i=1, #pathLabels do
         local path = pathLabels[i].split(' ')[0]
         local label = pathLabels[i].split(' ')[1]
@@ -51,7 +55,7 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
         table.insert(labels, label)
     end
 
-    return Paths, Labels
+    return paths, labels
 end
 
 function getVideo(paths, frameNum, imgSize, channelNum)
