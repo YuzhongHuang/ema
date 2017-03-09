@@ -66,7 +66,7 @@ function getVideo(paths, frameNum, imgSize, channelNum)
         for j=1, num do
             -- read the image
             local frame = frames[j]
-            local img = image.load(path..'/'..frame)
+            local img = image.load(path..'/'..frame, channelNum, 'float')
             img = image.scale(img, imgSize, imgSize)
 
             -- store the images with a rescaled version
