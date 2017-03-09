@@ -27,6 +27,9 @@ videoPath = "../../../hmdbData/frames"
 trainName = "/train.txt" 	-- name of the train split file
 testName = "/test.txt"		-- name of the test split file
 
+-- encoding path datas
+path = {trainPath=trainPath, testPath=testPath, videoPath=videoPath, trainName=trainName, testName=testName}
+
 -- data parameters
 trainBatchTotal = 70
 testBatchTotal = 30
@@ -46,18 +49,18 @@ batchSize = relativeBatchSize * classNum
 
 -- get the train dataset's paths and labels
 trainset = {}
-trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize, trainName)
+trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize, trainBatchTotal, trainName)
 
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
-opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum}
+opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum, trainBatchTotal=trainBatchTotal, testBatchTotal=testBatchTotal}
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
 	:add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
 -- initialize a parallel data table for gpu
-if next(gpus) == nil then
+if gpus ~= nil then
 	net = nn.DataParallelTable(1)
 	net:add(rnn, gpus)
 else
@@ -77,6 +80,6 @@ end
 -- TODO: use cudnn to optimize
 
 -- call training function
-trained_model = train(optimState, opt, trainset, net, criterion)
+trained_model = train(optimState, opt, path, net, criterion)
 -- test trained model with test dataset
 print(accuracy(trained_model, getTest(testPath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)))
