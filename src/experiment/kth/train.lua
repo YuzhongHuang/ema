@@ -32,9 +32,9 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.005
+learningRate = 0.001
 learningDecay = 0.005
-iteration = 20 	-- #epochs
+iteration = 1 	-- #epochs
 momentum = 0.5
 
 -- parameters for building the network
