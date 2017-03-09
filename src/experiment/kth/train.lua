@@ -27,6 +27,9 @@ videoPath = "../../../kthData/frames"
 trainName = "/train.txt" 	-- name of the train split file
 testName = "/test.txt"		-- name of the test split file
 
+-- encoding path datas
+path = {trainPath=trainPath, testPath=testPath, videoPath=videoPath, trainName=trainName, testName=testName}
+
 -- data parameters
 trainBatchTotal = 75
 testBatchTotal = 24
@@ -34,7 +37,7 @@ testBatchTotal = 24
 -- hyper parameters
 learningRate = 0.002
 learningDecay = 0.005
-iteration = 1 	-- #epochs
+iteration = 10 	-- #epochs
 momentum = 0.5
 
 -- parameters for building the network
@@ -44,13 +47,9 @@ classNum = 6
 relativeBatchSize = 10 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
--- get the train dataset's paths and labels
-trainset = {}
-trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, imgSize, trainBatchTotal, trainName)
-
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
-opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum}
+opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum, trainBatchTotal=trainBatchTotal, testBatchTotal=testBatchTotal}
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
@@ -77,6 +76,6 @@ end
 -- TODO: use cudnn to optimize
 
 -- call training function
-trained_model = train(optimState, opt, trainset, net, criterion)
+trained_model = train(optimState, opt, path, net, criterion)
 -- test trained model with test dataset
 print(accuracy(trained_model, getTest(testPath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)))

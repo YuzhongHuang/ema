@@ -11,17 +11,19 @@ require "./train_utils"
 require "./data_utils"
 
 
-function train(optimState, opt, trainset, model, criterion)
+function train(optimState, opt, path, model, criterion)
     local optimState = optimState
 
-    -- for testing purposes, will remove later
-    local testPath = "../../../kthData/split1/test"
-    local videoPath = "../../../kthData/frames"
-    local testSet = getTest(testPath, videoPath, opt.frameNum, opt.imgSize, opt.channelNum, 24, '/test.txt')
+    -- load a testset
+    local testet = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
 	
     -- epoch loop
     for epoch = 1, opt.iteration do
         print('Current Epoch: '..epoch)
+
+        -- load a shuffled trainset
+        trainset = {}
+        trainset.paths, trainset.labels = getDataPath(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.trainBatchTotal, path.trainName)
 
         local parameters, gradParams = model:getParameters()
         local epochError = 0
