@@ -68,6 +68,7 @@ function train(optimState, opt, trainset, model, criterion)
                 model:backward(input, df_do)
 
                 -- TODO: consider using L1 and L2 penalties
+                print("Alpha Weight: "..model.modules[4].modules[2].modules[3].modules[1].modules[2].modules[1].weight)
 
                 print("Batch error: "..f)
                 epochError = epochError + f
