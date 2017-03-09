@@ -17,7 +17,7 @@ require "../../util/plot_utils"
 -- configurations
 gpuFlag = true 	-- set running mode
 imgSize = 32
-gpus = nil
+gpus = {1,2,3,4,5,6,7,8}
 
 -- data loading path
 trainPath = "../../../kthData/split1/train"
