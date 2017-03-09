@@ -54,7 +54,7 @@ function train(optimState, opt, trainset, model, criterion)
                 -- reset gradients
                 gradParams:zero()
                 model:zeroGradParameters()
-                mode:forget()
+                model:forget()
 
                 -- get batch input from batch paths
                 local input = getVideo(paths, opt.frameNum, opt.imgSize)
@@ -75,7 +75,6 @@ function train(optimState, opt, trainset, model, criterion)
                 -- return f and df/dX
                 return f, gradParams
             end
-
             optim.sgd(feval, parameters, optimState)
         end 
 
