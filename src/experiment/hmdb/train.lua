@@ -50,7 +50,7 @@ trainset.paths, trainset.labels = getDataPath(trainPath, videoPath, frameNum, im
 
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
-opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
+opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum}
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
@@ -79,4 +79,4 @@ end
 -- call training function
 trained_model = train(optimState, opt, trainset, net, criterion)
 -- test trained model with test dataset
-print(accuracy(trained_model, getTest(testPath, videoPath, frameNum, imgSize, testBatchTotal, testName)))
+print(accuracy(trained_model, getTest(testPath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)))

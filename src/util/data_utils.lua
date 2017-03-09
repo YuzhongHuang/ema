@@ -11,14 +11,14 @@ require 'image'
 math.randomseed(os.time())
 
 -- getTest(path) return a table with a video tensor and a label tensor
-function getTest(testpath, videoPath, frameNum, imgSize, testBatchTotal, testName)
+function getTest(testpath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)
     local testSet = {}
     local paths = {}
     local labels = {}
 
     paths, labels = getDataPath(testPath, videoPath, frameNum, imgSize, testBatchTotal, testName)
 
-    testSet.vids = getVideo(paths, frameNum, imgSize)
+    testSet.vids = getVideo(paths, frameNum, imgSize, channelNum)
     testSet.labels = torch.Tensor(labels):cuda()
 
     return testSet
@@ -45,7 +45,7 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
     return Paths, Labels
 end
 
-function getVideo(paths, frameNum, imgSize)
+function getVideo(paths, frameNum, imgSize, channelNum)
     -- local max = maxSequence(paths)
     local batchInputs = torch.FloatTensor(#paths, frameNum, 3, imgSize, imgSize)
     for i=1, #paths do
