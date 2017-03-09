@@ -46,7 +46,6 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
 end
 
 function getVideo(paths, frameNum, imgSize, channelNum)
-    -- local max = maxSequence(paths)
     local batchInputs = torch.FloatTensor(#paths, frameNum, channelNum, imgSize, imgSize)
     for i=1, #paths do
         local path = paths[i]
@@ -56,20 +55,22 @@ function getVideo(paths, frameNum, imgSize, channelNum)
         sys_path = path:gsub('(%()', '\\%(')
         sys_path = path:gsub('(%;)', '\\%;')
         sys_path = path:gsub('(&)', '\\&')
+        
+        -- get all img files under the current folder
         local frames = ls(sys_path)
-        local num = #frames
+        -- grab #frameNum of images porprotionally from #frames images
+        local step = (#frames)/frameNum
 
-        if num > frameNum then
-            num = frameNum
-        end
+        for j=1, frameNum do
+            -- load a frame
+            local index = math.floor(j*step+0.5)    -- return an integer closest to j*step 
+            local frame = frames[index]
 
-        for j=1, num do
-            -- read the image
-            local frame = frames[j]
+            -- load and resize the image
             local img = image.load(path..'/'..frame, channelNum, 'float')
             img = image.scale(img, imgSize, imgSize)
 
-            -- store the images with a rescaled version
+            -- store the images into the tensor
             batchInputs[{{i},{j},{},{},{}}] = img
         end
     end

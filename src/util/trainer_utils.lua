@@ -13,6 +13,11 @@ require "./data_utils"
 
 function train(optimState, opt, trainset, model, criterion)
     local optimState = optimState
+
+    -- for testing purposes, will remove later
+    local testPath = "../../../kthData/split1/test"
+    local videoPath = "../../../kthData/frames"
+    local testSet = getTest(testPath, videoPath, opt.frameNum, opt.imgSize, opt.channelNum, 24, '/test.txt')
 	
     -- epoch loop
     for epoch = 1, opt.iteration do
@@ -20,11 +25,6 @@ function train(optimState, opt, trainset, model, criterion)
 
         local parameters, gradParams = model:getParameters()
         local epochError = 0
-
-        -- for testing purposes, will remove later
-        local testPath = "../../../kthData/split1/test"
-        local videoPath = "../../../kthData/frames"
-        local testSet = getTest(testPath, videoPath, opt.frameNum, opt.imgSize, opt.channelNum, 24, '/test.txt')
 
         -- loop through all the data with minibatches
         for t = 1, #(trainset.paths), opt.batchSize do
