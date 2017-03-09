@@ -11,54 +11,55 @@ require 'image'
 math.randomseed(os.time())
 
 -- getTest(path) return a table with a video tensor and a label tensor
-function getTest(testpath, videoPath, frameNum, batchSize, imgSize)
-    local classes = ls(testPath)
-    local videoPaths = {}
-    local testLabels = {}
-    local t = {}
+function getTest(testpath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)
+    local testSet = {}
+    local paths = {}
+    local labels = {}
 
-    for i=1, #classes do
-        local path = testPath..'/'..classes[i]..'/test.txt'
-        local framePath = videoPath..'/'..classes[i]
-        local lst = read_and_process(path, framePath)
-        local indices = getIndices(30, batchSize)
+    paths, labels = getDataPath(testPath, videoPath, frameNum, imgSize, testBatchTotal, testName)
 
-        for j=1, batchSize do
-            table.insert(videoPaths, lst[indices[j]])
-            table.insert(testLabels, i)
-        end
-    end
+    testSet.vids = getVideo(paths, frameNum, imgSize, channelNum)
+    testSet.labels = torch.Tensor(labels):cuda()
 
-    t.vids = getVideo(videoPaths, frameNum, imgSize)
-    t.labels = torch.Tensor(testLabels)
-
-    return t
+    return testSet
 end
 
-function getEpoch(trainsets, videoPath, frameNum, imgSize)
+function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, fileName)
     local classes = ls(trainsets)
-    local Paths = {}
-    local Labels = {}
+    local paths = {}
+    local labels = {}
+    local pathLabels = {}
 
     for i=1, #classes do
-        local path = trainsets..'/'..classes[i]..'/train.txt'
+        local path = trainsets..'/'..classes[i]..fileName
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
-        local indices = getIndices(70, 70) -- get all 70 shuffled elements per catergory for training
-
-        -- get all 70 trainning elements many videos from each class
-        for j=1, 70 do
-            table.insert(Paths, lst[indices[j]])
-            table.insert(Labels, i)
+        
+        -- get all shuffled elements per catergory for training
+        local indices = getIndices(trainBatchTotal, trainBatchTotal) 
+        
+        -- get all trainning elements many videos from each class
+        for j=1, trainBatchTotal do
+            table.insert(pathLabels, lst[indices[j]]..' '..i)   -- combine paths and labels so for shuffling  
         end 
     end
 
-    return Paths, Labels
+
+    shuffleTable(pathLabels)    -- shuffle among classes
+
+    -- separate paths and labels
+    for i=1, #pathLabels do
+        local path = split(pathLabels[i], " ")[1]
+        local label = tonumber(split(pathLabels[i], " ")[2])
+        table.insert(paths, path)
+        table.insert(labels, label)
+    end
+
+    return paths, labels
 end
 
-function getVideo(paths, frameNum, imgSize)
-    -- local max = maxSequence(paths)
-    local batchInputs = torch.FloatTensor(#paths, frameNum, 3, imgSize, imgSize)
+function getVideo(paths, frameNum, imgSize, channelNum)
+    local batchInputs = torch.FloatTensor(#paths, frameNum, channelNum, imgSize, imgSize)
     for i=1, #paths do
         local path = paths[i]
 
@@ -67,20 +68,22 @@ function getVideo(paths, frameNum, imgSize)
         sys_path = path:gsub('(%()', '\\%(')
         sys_path = path:gsub('(%;)', '\\%;')
         sys_path = path:gsub('(&)', '\\&')
+        
+        -- get all img files under the current folder
         local frames = ls(sys_path)
-        local num = #frames
+        -- grab #frameNum of images porprotionally from #frames images
+        local step = (#frames)/frameNum
 
-        if num > frameNum then
-            num = frameNum
-        end
+        for j=1, frameNum do
+            -- load a frame
+            local index = math.floor(j*step+0.5)    -- return an integer closest to j*step 
+            local frame = frames[index]
 
-        for j=1, num do
-            -- read the image
-            local frame = frames[j]
-            local img = image.load(path..'/'..frame)
+            -- load and resize the image
+            local img = image.load(path..'/'..frame, channelNum, 'float')
             img = image.scale(img, imgSize, imgSize)
 
-            -- store the images with a rescaled version
+            -- store the images into the tensor
             batchInputs[{{i},{j},{},{},{}}] = img
         end
     end
@@ -151,4 +154,17 @@ function shuffleTable(t)
         local j = rand(i)
         t[i], t[j] = t[j], t[i]
     end
+end
+
+-- define a string split function
+function split(inputstr, sep)
+        if sep == nil then
+                sep = "%s"
+        end
+        local t={} ; i=1
+        for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+                t[i] = str
+                i = i + 1
+        end
+        return t
 end

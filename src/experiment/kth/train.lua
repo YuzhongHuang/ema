@@ -15,44 +15,48 @@ require "../../util/trainer_utils"
 require "../../util/plot_utils"
 
 -- configurations
-gpuFlag = true -- set running mode
-imgSize = 16
+gpuFlag = true 	-- set running mode
+imgSize = 32
 gpus = {1,2,3,4,5,6,7,8}
 
--- data paths
-trainPath = "../../../data/split1/train"
-testPath = "../../../data/split1/test"
-videoPath = "../../../data/frames"
+-- data loading path
+trainPath = "../../../kthData/split1/train"
+testPath = "../../../kthData/split1/test"
+videoPath = "../../../kthData/frames"
+
+trainName = "/train.txt" 	-- name of the train split file
+testName = "/test.txt"		-- name of the test split file
+
+-- encoding path datas
+path = {trainPath=trainPath, testPath=testPath, videoPath=videoPath, trainName=trainName, testName=testName}
+
+-- data parameters
+trainBatchTotal = 75
+testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.005
+learningRate = 0.01
 learningDecay = 0.005
-iteration = 200 -- #epochs
-momentum = 0.5
+iteration = 50 	-- #epochs
+momentum = 0
 
 -- parameters for building the network
-frameNum = 20
-channelNum = 3
-classNum = 51
-relativeBatchSize = 1 -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+frameNum = 80
+channelNum = 1
+classNum = 6
+relativeBatchSize = 5 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
-
--- get the train and test dataset's paths and labels
-trainset = {}
-testset = {}
-trainset.paths, trainset.labels = getEpoch(trainPath, videoPath, frameNum, imgSize)
-testset.paths, testset.labels = getEpoch(testPath, videoPath, frameNum, imgSize)
 
 -- encoding parameters into tables
 optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
-opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize}
+opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum, trainBatchTotal=trainBatchTotal, testBatchTotal=testBatchTotal}
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
-	:add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
+	:add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
 -- initialize a parallel data table for gpu
-if next(gpus) == nil then
+if gpus ~= nil then
 	net = nn.DataParallelTable(1)
 	net:add(rnn, gpus)
 else
@@ -72,6 +76,6 @@ end
 -- TODO: use cudnn to optimize
 
 -- call training function
-trained_model = train(optimState, opt, trainset, net, criterion)
+trained_model = train(optimState, opt, path, net, criterion)
 -- test trained model with test dataset
-accuracy(trained_model, getTest(paths.test, paths.video, frameNum, relativeBatchSize, imgSize))
+print(accuracy(trained_model, getTest(testPath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)))

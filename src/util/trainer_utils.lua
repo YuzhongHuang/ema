@@ -11,12 +11,19 @@ require "./train_utils"
 require "./data_utils"
 
 
-function train(optimState, opt, trainset, model, criterion)
+function train(optimState, opt, path, model, criterion)
     local optimState = optimState
+
+    -- load a testset
+    local testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
 	
     -- epoch loop
     for epoch = 1, opt.iteration do
         print('Current Epoch: '..epoch)
+
+        -- load a shuffled trainset
+        trainset = {}
+        trainset.paths, trainset.labels = getDataPath(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.trainBatchTotal, path.trainName)
 
         local parameters, gradParams = model:getParameters()
         local epochError = 0
@@ -53,9 +60,10 @@ function train(optimState, opt, trainset, model, criterion)
 
                 -- reset gradients
                 gradParams:zero()
+		model:forget()
 
                 -- get batch input from batch paths
-                local input = getVideo(paths, opt.frameNum, opt.imgSize)
+                local input = getVideo(paths, opt.frameNum, opt.imgSize, opt.channelNum)
 
                 -- evaluate function for complete mini batch
                 local outputs = model:forward(input)
@@ -66,6 +74,7 @@ function train(optimState, opt, trainset, model, criterion)
                 model:backward(input, df_do)
 
                 -- TODO: consider using L1 and L2 penalties
+                print(model.modules[1].modules[4].modules[2].modules[3].modules[1].modules[2].modules[1].weight)
 
                 print("Batch error: "..f)
                 epochError = epochError + f
@@ -73,14 +82,14 @@ function train(optimState, opt, trainset, model, criterion)
                 -- return f and df/dX
                 return f, gradParams
             end
-
             optim.sgd(feval, parameters, optimState)
-            model:forget()
         end 
 
         --update epoch error
         epochError = epochError*opt.batchSize/(#(trainset.paths))
         print('Epoch error: '.. epochError)       
+
+        print(accuracy(model, testset))
     end
 
     -- clear model state to minimize memory
