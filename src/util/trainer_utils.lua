@@ -53,6 +53,8 @@ function train(optimState, opt, trainset, model, criterion)
 
                 -- reset gradients
                 gradParams:zero()
+                model:zeroGradParameters()
+                mode:forget()
 
                 -- get batch input from batch paths
                 local input = getVideo(paths, opt.frameNum, opt.imgSize)
@@ -75,7 +77,6 @@ function train(optimState, opt, trainset, model, criterion)
             end
 
             optim.sgd(feval, parameters, optimState)
-            model:forget()
         end 
 
         --update epoch error
