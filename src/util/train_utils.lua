@@ -82,7 +82,7 @@ function learnable_ema(frameNum, channelNum, classNum, size)
             :add(pos)
             :add(neg))
         :add(nn.JoinTable(3))
-        :add(nn.MulConstant(40))        
+        :add(nn.MulConstant(50))        
         :add(nn.View(frameNum, channelNum*2, size, size))
     return net
 end
