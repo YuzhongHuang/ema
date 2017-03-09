@@ -15,7 +15,7 @@ function train(optimState, opt, path, model, criterion)
     local optimState = optimState
 
     -- load a testset
-    local testet = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    local testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
 	
     -- epoch loop
     for epoch = 1, opt.iteration do
