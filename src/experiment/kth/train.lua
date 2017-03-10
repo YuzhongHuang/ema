@@ -37,7 +37,7 @@ testBatchTotal = 24
 -- hyper parameters
 learningRate = 0.01
 learningDecay = 0.005
-iteration = 50  -- #epochs
+iteration = 3  -- #epochs
 momentum = 0
 
 -- parameters for building the network
