@@ -15,7 +15,7 @@ require "../../util/trainer_utils"
 require "../../util/plot_utils"
 
 -- configurations
-gpuFlag = true 	-- set running mode
+gpuFlag = true  -- set running mode
 imgSize = 32
 gpus = {1,2,3,4,5,6,7,8}
 
@@ -24,8 +24,8 @@ trainPath = "../../../kthData/split1/train"
 testPath = "../../../kthData/split1/test"
 videoPath = "../../../kthData/frames"
 
-trainName = "/train.txt" 	-- name of the train split file
-testName = "/test.txt"		-- name of the test split file
+trainName = "/train.txt"    -- name of the train split file
+testName = "/test.txt"      -- name of the test split file
 
 -- encoding path datas
 path = {trainPath=trainPath, testPath=testPath, videoPath=videoPath, trainName=trainName, testName=testName}
@@ -37,14 +37,14 @@ testBatchTotal = 24
 -- hyper parameters
 learningRate = 0.01
 learningDecay = 0.005
-iteration = 50 	-- #epochs
+iteration = 50  -- #epochs
 momentum = 0
 
 -- parameters for building the network
 frameNum = 80
 channelNum = 1
 classNum = 6
-relativeBatchSize = 5 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 5   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- name of the experiment
@@ -52,32 +52,32 @@ exp_name = "_"..imgSize.."_"..learningRate.."_"..learningDecay.."_"..iteration..
 
 -- encoding parameters into tables
 optimState = {
-	learningRate = learningRate, 
-	learningDecay = learningDecay, 
-	momentum = momentum
+    learningRate = learningRate, 
+    learningDecay = learningDecay, 
+    momentum = momentum
 }
 
 opt = {
-	frameNum = frameNum, 
-	iteration = iteration, 
-	batchSize = batchSize, 
-	imgSize = imgSize, 
-	channelNum = channelNum, 
-	trainBatchTotal = trainBatchTotal, 
-	testBatchTotal = testBatchTotal, 
-	exp_name = exp_name
+    frameNum = frameNum, 
+    iteration = iteration, 
+    batchSize = batchSize, 
+    imgSize = imgSize, 
+    channelNum = channelNum, 
+    trainBatchTotal = trainBatchTotal, 
+    testBatchTotal = testBatchTotal, 
+    exp_name = exp_name
 }
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
-	:add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
+    :add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then
-	net = nn.DataParallelTable(1)
-	net:add(rnn, gpus)
+    net = nn.DataParallelTable(1)
+    net:add(rnn, gpus)
 else
-	net = rnn
+    net = rnn
 end
 
 -- build criterion
@@ -85,8 +85,8 @@ criterion = nn.ClassNLLCriterion()
 
 -- transfer the net to gpu if gpu mode is on
 if gpuFlag then
-	net = net:cuda()
-	criterion = criterion:cuda()
+    net = net:cuda()
+    criterion = criterion:cuda()
 end
 
 -- TODO: use optnet to reduce memory usage

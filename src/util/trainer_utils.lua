@@ -9,12 +9,14 @@ require 'optim'
 
 require "./train_utils"
 require "./data_utils"
+require "./plot_utils"
 
 
 function train(optimState, opt, path, model, criterion)
     -- initialize tables for recording trainning and testing result data
     epochErrors = {}
     accuracies = {}
+    iterations = {}
 
     -- load a testset
     local testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
@@ -90,15 +92,22 @@ function train(optimState, opt, path, model, criterion)
 
         -- update and record epoch error
         epochError = epochError*opt.batchSize/(#(trainset.paths))
-        table.insert(epochErrors, epochError)
+        table.insert(epochErrors, torch.exp(epochError)*100) -- convert log errors to percentages
 
-        print('Epoch error: '.. epochError)       
+        print('Train Accuracy: '..epochError)       
 
         -- update and record accuracy
         accuracy = accuracy(model, testset))
         table.insert(accuracies, accuracy)
-    end
 
+        print('Test Accuracy: '..accuracy)
+
+        -- update iterations
+        table.insert(iterations, epoch)
+
+        -- plot the train and test accuracy in realtime
+        plot("./plots/plot"..opt.exp_name..".t7", iterations, accuracies, epochErrors)
+    end
     
     model:clearState() -- clear model state to minimize memory
     torch.save("./models/model"..opt.exp_name..".t7", model) -- save the model
