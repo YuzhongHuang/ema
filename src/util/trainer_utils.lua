@@ -12,7 +12,9 @@ require "./data_utils"
 
 
 function train(optimState, opt, path, model, criterion)
-    local optimState = optimState
+    -- initialize tables for recording trainning and testing result data
+    epochErrors = {}
+    accuracies = {}
 
     -- load a testset
     local testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
@@ -27,6 +29,7 @@ function train(optimState, opt, path, model, criterion)
 
         local parameters, gradParams = model:getParameters()
         local epochError = 0
+        local accuracy = 0
 
         -- loop through all the data with minibatches
         for t = 1, #(trainset.paths), opt.batchSize do
@@ -85,17 +88,24 @@ function train(optimState, opt, path, model, criterion)
             optim.sgd(feval, parameters, optimState)
         end 
 
-        --update epoch error
+        -- update and record epoch error
         epochError = epochError*opt.batchSize/(#(trainset.paths))
+        table.insert(epochErrors, epochError)
+
         print('Epoch error: '.. epochError)       
 
-        print(accuracy(model, testset))
+        -- update and record accuracy
+        accuracy = accuracy(model, testset))
+        table.insert(accuracies, accuracy)
     end
 
-    -- clear model state to minimize memory
-    model:clearState()
-    -- save the model
-    torch.save("./models/model"..opt.exp_name..".t7", model)
+    
+    model:clearState() -- clear model state to minimize memory
+    torch.save("./models/model"..opt.exp_name..".t7", model) -- save the model
+
+    -- save the train&test result data
+    torch.save("./epochErrors/epochError"..opt.exp_name..".t7", epochErrors)
+    torch.save("./accuracies/accuracy"..opt.exp_name..".t7", accuracies)
 
     return model
 end
