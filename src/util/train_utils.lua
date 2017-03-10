@@ -5,7 +5,7 @@
 -- network modules, as well as test data validation function
 
 -- accuracy() computes the test accuracy of a given test data
-function accuracy(net, testData)
+function getAccuracy(net, testData)
     local correct = 0
     local test_num = (#testData.vids)[1]
 
