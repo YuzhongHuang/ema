@@ -97,7 +97,7 @@ function train(optimState, opt, path, model, criterion)
         print('Train Accuracy: '..epochError)       
 
         -- update and record accuracy
-        accuracy = accuracy(model, testset)
+        accuracy = getAccuracy(model, testset)
         table.insert(accuracies, accuracy)
 
         print('Test Accuracy: '..accuracy)
