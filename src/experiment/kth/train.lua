@@ -94,5 +94,3 @@ end
 
 -- call training function
 trained_model = train(optimState, opt, path, net, criterion)
--- test trained model with test dataset
-print(accuracy(trained_model, getTest(testPath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)))
