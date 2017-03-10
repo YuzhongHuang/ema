@@ -91,10 +91,10 @@ function train(optimState, opt, path, model, criterion)
         end 
 
         -- update and record epoch error
-        epochError = torch.exp(-epochError*opt.batchSize/(#(trainset.paths)))*100 -- convert log errors to percentages
-        table.insert(epochErrors, epochError) 
+        epochError = epochError*opt.batchSize/(#(trainset.paths))
+        table.insert(epochErrors, epochError)
 
-        print('Train Accuracy: '..epochError)       
+        print('Epoch Error: '..epochError)       
 
         -- update and record accuracy
         accuracy = getAccuracy(model, testset)
