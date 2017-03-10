@@ -1,9 +1,13 @@
 require "gnuplot"
 
 -- a function that plots the overall accuracy
-function plot(name, iter, a)
+function plot(name, iter, a, e)
 	gnuplot.pngfigure(name..".png")
-	gnuplot.plot(torch.Tensor(iter), torch.Tensor(a))
+	
+	gnuplot.plot(
+		{'Training', torch.Tensor(iter), torch.Tensor(e), '~'},
+		{"Testing", torch.Tensor(iter), torch.Tensor(a), '~'}
+	)
 
 	gnuplot.title('LRCN Training Plot')
 	gnuplot.xlabel('Iterations (epoch)')
