@@ -16,7 +16,7 @@ function train(optimState, opt, path, model, criterion)
 
     -- load a testset
     local testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
-	
+    
     -- epoch loop
     for epoch = 1, opt.iteration do
         print('Current Epoch: '..epoch)
@@ -60,7 +60,7 @@ function train(optimState, opt, path, model, criterion)
 
                 -- reset gradients
                 gradParams:zero()
-		model:forget()
+                model:forget()
 
                 -- get batch input from batch paths
                 local input = getVideo(paths, opt.frameNum, opt.imgSize, opt.channelNum)
@@ -95,7 +95,7 @@ function train(optimState, opt, path, model, criterion)
     -- clear model state to minimize memory
     model:clearState()
     -- save the model
-    torch.save('model.t7', model)
+    torch.save("./models/model"..opt.exp_name..".t7", model)
 
     return model
 end

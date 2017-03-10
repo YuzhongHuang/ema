@@ -47,9 +47,26 @@ classNum = 6
 relativeBatchSize = 5 	-- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
+-- name of the experiment
+exp_name = "_"..imgSize.."_"..learningRate.."_"..learningDecay.."_"..iteration.."_"..momentum.."_"..frameNum.."_"..batchSize
+
 -- encoding parameters into tables
-optimState = {learningRate=learningRate, learningDecay=learningDecay, momentum = momentum}
-opt = {frameNum=frameNum, iteration=iteration, batchSize=batchSize, imgSize=imgSize, channelNum=channelNum, trainBatchTotal=trainBatchTotal, testBatchTotal=testBatchTotal}
+optimState = {
+	learningRate = learningRate, 
+	learningDecay = learningDecay, 
+	momentum = momentum
+}
+
+opt = {
+	frameNum = frameNum, 
+	iteration = iteration, 
+	batchSize = batchSize, 
+	imgSize = imgSize, 
+	channelNum = channelNum, 
+	trainBatchTotal = trainBatchTotal, 
+	testBatchTotal = testBatchTotal, 
+	exp_name = exp_name
+}
 
 -- generate a network model
 rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
