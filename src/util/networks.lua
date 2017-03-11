@@ -3,7 +3,7 @@
 -- This script contains network code for our experiments settings
 
 -- import modules code
-require 'modules.lua'
+require 'modules'
 
 -- expriment number 1: frame-driven lenet LRCN
 function exp_1(frameNum, channelNum, classNum, size)
