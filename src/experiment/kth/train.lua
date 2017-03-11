@@ -13,11 +13,13 @@ require "../../util/data_utils"
 require "../../util/train_utils"
 require "../../util/trainer_utils"
 require "../../util/plot_utils"
+require "../../util/modules_utils"
+require "../../util/network_utils"
 
 -- configurations
 gpuFlag = true  -- set running mode
 imgSize = 32
-gpus = {1,2,3,4,5,6,7,8}
+gpus = {1,2,3,4}
 
 -- data loading path
 trainPath = "../../../kthData/split1/train"
@@ -69,8 +71,7 @@ opt = {
 }
 
 -- generate a network model
-rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
-    :add(LRCN_margin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
+rnn = exp_1(frameNum, channelNum, classNum, imgSize):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then
