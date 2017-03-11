@@ -1,166 +1,192 @@
 -- Yuzhong Huang yuzhong.huang@students.olin.edu
--- George Chen hc25@rice.edu
 
--- This script contains all the modularized network code
+-- This script contains network code for our experiments settings
 
--- ema network layer, with a tunable alpha value and a fixed threshold value
-function learnable_ema(frameNum, channelNum, classNum, size)
-    local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
-    local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
-        
-    local hidden_layer = nn.Sequential()
-        :add(nn.ConcatTable()
-            :add(nn.Identity())
-            :add(hidden_layer_alpha))
-        :add(nn.CSubTable())
-    
-    local r = nn.Recurrent(nn.Abs(), input_layer, hidden_layer, nn.Abs(), 5)
-    
-    local ema = nn.Sequential()
-        :add(nn.AddConstant(1))
-        :add(nn.SplitTable(1,2))
-        :add(nn.Sequencer(r))
-        :add(nn.JoinTable(2))
-    
-    local identity = nn.Sequential()
-        :add(nn.AddConstant(1))
-    
-    local mean = nn.Sequential()
-        :add(nn.Mean(3))
-        :add(nn.Replicate(channelNum*size*size,3))
-    
-    local frame_normalize = nn.Sequential()
-        :add(nn.ConcatTable()
-            :add(nn.Identity())
-            :add(mean))
-        :add(nn.CSubTable())
-    
-    local pos = nn.Sequential()
-        :add(nn.AddConstant(-0.003))
-        :add(nn.ReLU())
-    
-    local neg = nn.Sequential()
-        :add(nn.MulConstant(-1))
-        :add(nn.AddConstant(-0.003))
-        :add(nn.ReLU())
+-- import modules code
+require 'modules.lua'
 
-    local model = nn.Sequential()
-        :add(nn.View(frameNum, channelNum*size*size))
-        :add(frame_normalize)
-        :add(nn.Tanh())
-        :add(nn.ConcatTable()
-            :add(identity)
-            :add(ema))
-        :add(nn.CDivTable())
-        :add(nn.View(frameNum, channelNum*size*size))
-        :add(frame_normalize)
-        :add(nn.View(frameNum, channelNum, size*size))
-        :add(nn.Tanh())
-        :add(nn.ConcatTable()
-            :add(pos)
-            :add(neg))
-        :add(nn.JoinTable(3))
-        :add(nn.MulConstant(20))        
-        :add(nn.View(frameNum, channelNum*2, size, size))
+-- expriment number 1: frame-driven lenet LRCN
+function exp_1(frameNum, channelNum, classNum, size)
+	local kernelNum = 16
+	local kernelSize = size/4 - 3
+	local rnnSize = kernelSize*kernelSize
 
-    return model
+	local model = nn.Sequential()
+		:add(Lenet(channelNum, size))
+		:add(Non_Marginal(frameNum, kernelSize))
+		:add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+
+	return model
 end
 
--- Lenet
-function lenet(channelNum, size)
-    local kernelSize = size/4 -3
+-- expriment number 2: frame-driven lenet RCCN
+function exp_2(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4 - 3
+	local rnnSize = kernelSize*kernelSize
 
-    local model = nn.Sequential()
-       :add(nn.View(channelNum, size, size))
-       :add(nn.SpatialConvolution(channelNum, 6, 5, 5))
-       :add(nn.SpatialBatchNormalization(6))
-       :add(nn.ReLU()) 
-       :add(nn.SpatialMaxPooling(2,2,2,2))
-       :add(nn.SpatialConvolution(6, 16, 5, 5))
-       :add(nn.SpatialBatchNormalization(16))
-       :add(nn.ReLU()) 
-       :add(nn.SpatialMaxPooling(2,2,2,2))
-       :add(nn.View(16, kernelSize, kernelSize))
+	local model = nn.Sequential()
+		:add(Lenet(channelNum, size))
+		:add(Non_Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
 
-    return model
+	return model
 end
 
--- NiN
-function NiN(channelNum, size)
-    local kernelSize = size/4
+-- expriment number 3: frame-driven lenet marginal LRCN
+function exp_3(frameNum, channelNum, classNum, size)
+	local kernelNum = 16
+	local kernelSize = size/4 - 3
+	local rnnSize = 2*kernelSize
 
-    local model = nn.Sequential()
-        :add(nn.View(channelNum, size, size))
+	local model = nn.Sequential()
+		:add(Lenet(channelNum, size))
+		:add(Marginal(frameNum, kernelSize))
+		:add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
 
-    -- helper function to build NiN
-    local function Block(...)
-        local arg = {...}
-        model:add(nn.SpatialConvolution(...))
-        model:add(nn.SpatialBatchNormalization(arg[2],1e-3))
-        model:add(nn.ReLU(true))
-        return model
-    end
-
-    Block(channelNum,192,5,5,1,1,2,2)
-    Block(192,160,1,1)
-    Block(160,96,1,1)
-    model:add(nn.SpatialMaxPooling(3,3,2,2):ceil())
-    model:add(nn.Dropout())
-    Block(96,192,5,5,1,1,2,2)
-    Block(192,192,1,1)
-    Block(192,192,1,1)
-    model:add(nn.SpatialAveragePooling(3,3,2,2):ceil())
-    model:add(nn.Dropout())
-    Block(192,192,3,3,1,1,1,1)
-    Block(192,192,1,1)
-    model:add(nn.View(192, kernelSize, kernelSize))
-
-    return model
+	return model
 end
 
-function Marginal(frameNum, kernelSize)
-    local model = nn.Sequential()
-        :add(nn.Replicate(1,2))
-        :add(nn.ConcatTable()
-            :add(nn.Sum(4))
-            :add(nn.Sum(5)))
-        :add(nn.JoinTable(2))
-        :add(nn.ReLU())
-        :add(nn.View(frameNum, 2*kernelSize))
+-- expriment number 4: frame-driven lenet marginal RCCN
+function exp_4(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4 - 3
+	local rnnSize = 2*kernelSize
 
-    return model    
+	local model = nn.Sequential()
+		:add(Lenet(channelNum, size))
+		:add(Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
+
+	return model
 end
 
-function Non_Marginal(frameNum, kernelSize)
-    local model = nn.Sequential()
-        :add(nn.View(frameNum, kernelSize*kernelSize))
+-- expriment number 5: event-driven lenet LRCN
+function exp_5(frameNum, channelNum, classNum, size)
+	local kernelNum = 16
+	local kernelSize = size/4 - 3
+	local rnnSize = kernelSize*kernelSize
 
-    return model
+	local model = nn.Sequential()
+		:add(ema(frameNum, channelNum, classNum, size))
+		:add(Lenet(channelNum*2, size))
+		:add(Non_Marginal(frameNum, kernelSize))
+		:add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+
+	return model
 end
 
-function Recurrent_Per_Channel()
-    local model = nn.Sequential()
-        :add(nn.SplitTable(2,3))
-        :add(nn.Sequencer(nn.LSTM(kernelSize,kernelSize,5)))
-        :add(nn.SelectTable(-1))
+-- expriment number 6: event-driven lenet RCCN
+function exp_6(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4 - 3
+	local rnnSize = kernelSize*kernelSize
 
-        :add(nn.View(kernelNum*classNum))
-        :add(nn.Linear(kernelNum*classNum, classNum))
-        :add(nn.LogSoftMax())
+	local model = nn.Sequential()
+		:add(ema(frameNum, channelNum, classNum, size))
+		:add(Lenet(channelNum*2, size))
+		:add(Non_Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
 
-    return model
+	return model
 end
 
-function Long_Term_Recurrent()
-    local model = nn.Sequential()
-        :add(nn.View(frameNum, kernelNum*kernelNum*kernelSize))
-        :add(nn.Linear(kernelNum*kernelNum*kernelSize, 4096))
+-- expriment number 7: event-driven lenet marginal LRCN
+function exp_7(frameNum, channelNum, classNum, size)
+	local kernelNum = 16
+	local kernelSize = size/4 - 3
+	local rnnSize = 2*kernelSize
 
-        :add(SplitTable(2,3))
-        :add(nn.Sequencer(nn.LSTM(4096, 256)))
-        
-        :add(nn.Linear(256, classNum))
-        :add(nn.LogSoftMax())
+	local model = nn.Sequential()
+		:add(ema(frameNum, channelNum, classNum, size))
+		:add(Lenet(channelNum*2, size))
+		:add(Marginal(frameNum, kernelSize))
+		:add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
 
-    return model
+	return model
+end
+
+-- expriment number 8: event-driven lenet marginal RCCN
+function exp_8(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4 - 3
+	local rnnSize = 2*kernelSize
+
+	local model = nn.Sequential()
+		:add(ema(frameNum, channelNum, classNum, size))
+		:add(Lenet(channelNum*2, size))
+		:add(Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
+
+	return model
+end
+
+-- -- expriment number 9: frame-driven NiN LRCN
+-- function exp_9(frameNum, channelNum, classNum, size)
+
+-- end
+
+-- expriment number 10: frame-driven NiN RCCN
+function exp_10(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4
+	local rnnSize = kernelSize*kernelSize
+
+	local model = nn.Sequential()
+		:add(NiN(channelNum, size))
+		:add(Non_Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
+
+	return model
+end
+
+-- -- expriment number 11: frame-driven NiN marginal LRCN
+-- function exp_11(frameNum, channelNum, classNum, size)
+
+-- end
+
+-- expriment number 12: frame-driven NiN marginal RCCN
+function exp_12(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4
+	local rnnSize = 2*kernelSize
+
+	local model = nn.Sequential()
+		:add(NiN(channelNum, size))
+		:add(Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
+
+	return model
+end
+
+-- -- expriment number 13: event-driven NiN LRCN
+-- function exp_13(frameNum, channelNum, classNum, size)
+
+-- end
+
+-- expriment number 14: event-driven NiN RCCN
+function exp_14(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4
+	local rnnSize = kernelSize*kernelSize
+
+	local model = nn.Sequential()
+		:add(ema(frameNum, channelNum, classNum, size))
+		:add(NiN(channelNum*2, size))
+		:add(Non_Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
+
+	return model
+end
+
+-- -- expriment number 15: event-driven NiN marginal LRCN
+-- function exp_15(frameNum, channelNum, classNum, size)
+
+-- end
+
+-- expriment number 16: event-driven NiN marginal RCCN
+function exp_16(frameNum, channelNum, classNum, size)
+	local kernelSize = size/4
+	local rnnSize = 2*kernelSize
+
+	local model = nn.Sequential()
+		:add(ema(frameNum, channelNum, classNum, size))
+		:add(NiN(channelNum*2, size))
+		:add(Marginal(frameNum, kernelSize))
+		:add(Recurrent_Per_Channel(classNum, rnnSize))
+
+	return model
 end
