@@ -153,8 +153,9 @@ end
 
 function Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize)
     local model = nn.Sequential()
-        :add(nn.View(frameNum, kernelNum*rnnSize))
+        :add(nn.View(kernelNum*rnnSize))
         :add(nn.Linear(kernelNum*rnnSize, 120))
+        :add(nn.View(frameNum, 120))
 
         :add(nn.SplitTable(2,3))
         :add(nn.Sequencer(nn.LSTM(120, 84)))
