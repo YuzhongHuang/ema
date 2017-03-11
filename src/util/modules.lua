@@ -138,7 +138,7 @@ function Non_Marginal(frameNum, kernelSize)
     return model
 end
 
-function Recurrent_Per_Channel(classNum, rnnSize)
+function Recurrent_Per_Channel(classNum, kernelNum, rnnSize)
     local model = nn.Sequential()
         :add(nn.SplitTable(2,3))
         :add(nn.Sequencer(nn.LSTM(rnnSize,rnnSize,5)))
