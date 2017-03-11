@@ -158,6 +158,7 @@ function Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize)
 
         :add(nn.SplitTable(2,3))
         :add(nn.Sequencer(nn.LSTM(120, 84)))
+        :add(nn.SelectTable(-1))
         
         :add(nn.Linear(84, classNum))
         :add(nn.LogSoftMax())
