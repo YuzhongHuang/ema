@@ -9,12 +9,12 @@ require 'cutorch'
 require 'cudnn'
 require 'nn'
 
-require "../../util/data_utils"
-require "../../util/train_utils"
-require "../../util/trainer_utils"
-require "../../util/plot_utils"
-require "../../util/modules"
-require "../../util/networks"
+require "../../../util/data_utils"
+require "../../../util/train_utils"
+require "../../../util/trainer_utils"
+require "../../../util/plot_utils"
+require "../../../util/modules"
+require "../../../util/networks"
 
 -- configurations
 gpuFlag = true  -- set running mode
@@ -22,9 +22,9 @@ imgSize = 32
 gpus = {1,2,3,4,5,6,7,8}
 
 -- data loading path
-trainPath = "../../../kthData/split1/train"
-testPath = "../../../kthData/split1/test"
-videoPath = "../../../kthData/frames"
+trainPath = "../../../../kthData/split1/train"
+testPath = "../../../../kthData/split1/test"
+videoPath = "../../../../kthData/frames"
 
 trainName = "/train.txt"    -- name of the train split file
 testName = "/test.txt"      -- name of the test split file
@@ -37,7 +37,7 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.1
+learningRate = 0.09
 learningDecay = 0.008
 iteration = 100  -- #epochs
 momentum = 0.5

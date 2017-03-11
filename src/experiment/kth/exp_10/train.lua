@@ -37,7 +37,7 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.1
+learningRate = 0.07
 learningDecay = 0.005
 iteration = 3  -- #epochs
 momentum = 0
@@ -46,7 +46,7 @@ momentum = 0
 frameNum = 80
 channelNum = 1
 classNum = 6
-relativeBatchSize = 5   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 3   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- name of the experiment
