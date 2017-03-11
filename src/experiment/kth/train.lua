@@ -14,7 +14,7 @@ require "../../util/train_utils"
 require "../../util/trainer_utils"
 require "../../util/plot_utils"
 require "../../util/modules"
-require "../../util/network"
+require "../../util/networks"
 
 -- configurations
 gpuFlag = true  -- set running mode
