@@ -141,11 +141,11 @@ end
 function Recurrent_Per_Channel(classNum, kernelNum, rnnSize)
     local model = nn.Sequential()
         :add(nn.SplitTable(2,3))
-        :add(nn.Sequencer(nn.LSTM(rnnSize,rnnSize)))
+        :add(nn.Sequencer(nn.LSTM(rnnSize,classNum)))
         :add(nn.SelectTable(-1))
 
-        :add(nn.View(kernelNum*rnnSize))
-        :add(nn.Linear(kernelNum*rnnSize, classNum))
+        :add(nn.View(kernelNum*classNum))
+        :add(nn.Linear(kernelNum*classNum, classNum))
         :add(nn.LogSoftMax())
 
     return model
