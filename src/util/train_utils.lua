@@ -28,7 +28,7 @@ function getAccuracy(net, testData)
     end
 
     local confusion = getConfusion(groundtruths, predictions, classNum)
-    print confusion
+    print(confusion)
 
     return correct*(100.0/test_num) -- convert the correctness to percentages
 end
