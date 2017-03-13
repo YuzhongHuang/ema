@@ -24,7 +24,7 @@ function getAccuracy(net, testData)
         end
 
         classNum = (#indices)[1]
-        table.insert(predictions, prediction)
+        table.insert(predictions, indices[1])
     end
 
     local confusion = getConfusion(groundtruths, predictions, classNum)
