@@ -23,7 +23,8 @@ function getAccuracy(net, testData)
             correct = correct + 1
         end
 
-        classNum = #indices
+        classNum = #(indices)
+        print(classNum)
         table.insert(predictions, prediction)
     end
 
