@@ -37,8 +37,6 @@ function getConfusion(groundtruths, predictions, classNum)
     local mat = torch.zeros(classNum, classNum)
 
     for i = 1, #predictions do
-        print(predictions[i])
-        print(groundtruths[i])
         mat[predictions[i]][groundtruths[i]] = mat[predictions[i]][groundtruths[i]] + 1
     end
 
