@@ -10,19 +10,37 @@ function getAccuracy(net, testData)
     local test_num = (#testData.vids)[1]
 
     local groundtruths = testData.labels
-    local predictions = net:forward(testData.vids)
+    local outputs = net:forward(testData.vids)
+    local predictions = {}
+    local classNum = 0
 
     for i=1,test_num do
         local groundtruth = groundtruths[i]
-        local prediction = predictions[i]
+        local prediction = outputs[i]
 
         local confidences, indices = torch.sort(prediction, true)  -- true means sort in descending order
         if groundtruth == indices[1] then
             correct = correct + 1
         end
+
+        classNum = #indices
+        table.insert(predictions, prediction)
     end
 
+    local confusion = getConfusion(groundtruths, predictions, classNum)
+    print confusion
+
     return correct*(100.0/test_num) -- convert the correctness to percentages
+end
+
+function getConfusion(groundtruths, predictions, classNum)
+    local mat = torch.zeros(classNum, classNum)
+
+    for i = 1, #predictions do
+        mat[predictions[i]][groundtruths[i]] = mat[predictions[i]][groundtruths[i]] + 1
+    end
+
+    return mat
 end
 
 function learnable_ema(frameNum, channelNum, classNum, size)
