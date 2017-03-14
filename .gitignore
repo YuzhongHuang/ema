@@ -2,4 +2,5 @@ hmdbData/
 kthData/
 src/archive/
 src/pre-trained-models/
-
+*.swp
+*.t7

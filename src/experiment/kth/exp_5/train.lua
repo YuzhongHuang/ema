@@ -9,22 +9,22 @@ require 'cutorch'
 require 'cudnn'
 require 'nn'
 
-require "../../util/data_utils"
-require "../../util/train_utils"
-require "../../util/trainer_utils"
-require "../../util/plot_utils"
-require "../../util/modules"
-require "../../util/networks"
+require "../../../util/data_utils"
+require "../../../util/train_utils"
+require "../../../util/trainer_utils"
+require "../../../util/plot_utils"
+require "../../../util/modules"
+require "../../../util/networks"
 
 -- configurations
 gpuFlag = true  -- set running mode
-imgSize = 16
-gpus = {1,2,3,4,5,6,7,8}
+imgSize = 32
+gpus = nil
 
 -- data loading path
-trainPath = "../../../hmdbData/split1/train"
-testPath = "../../../hmdbData/split1/test"
-videoPath = "../../../hmdbData/frames"
+trainPath = "../../../../kthData/split1/train"
+testPath = "../../../../kthData/split1/test"
+videoPath = "../../../../kthData/frames"
 
 trainName = "/train.txt"    -- name of the train split file
 testName = "/test.txt"      -- name of the test split file
@@ -33,20 +33,20 @@ testName = "/test.txt"      -- name of the test split file
 path = {trainPath=trainPath, testPath=testPath, videoPath=videoPath, trainName=trainName, testName=testName}
 
 -- data parameters
-trainBatchTotal = 70
-testBatchTotal = 30
+trainBatchTotal = 75
+testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.005
-learningDecay = 0.005
-iteration = 200 -- #epochs
+learningRate = 0.14
+learningDecay = 0.008
+iteration = 3  -- #epochs
 momentum = 0.5
 
 -- parameters for building the network
-frameNum = 20
-channelNum = 3
-classNum = 51
-relativeBatchSize = 1   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+frameNum = 80
+channelNum = 1
+classNum = 6
+relativeBatchSize = 5   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- name of the experiment
@@ -66,20 +66,19 @@ opt = {
     imgSize = imgSize, 
     channelNum = channelNum, 
     trainBatchTotal = trainBatchTotal, 
-    testBatchTotal = testBatchTotal,
+    testBatchTotal = testBatchTotal, 
     exp_name = exp_name
 }
 
 -- generate a network model
-rnn = learnable_ema(frameNum, channelNum, classNum, imgSize)
-    :add(LRCN_nin_parallel(frameNum, channelNum*2, classNum, imgSize)):cuda()
+model = exp_5(frameNum, channelNum, classNum, imgSize):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then
     net = nn.DataParallelTable(1)
-    net:add(rnn, gpus)
+    net:add(model, gpus)
 else
-    net = rnn
+    net = model
 end
 
 -- build criterion
