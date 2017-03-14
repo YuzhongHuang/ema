@@ -46,7 +46,7 @@ momentum = 0.5
 frameNum = 60
 channelNum = 1
 classNum = 6
-relativeBatchSize = 3   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 3  -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- name of the experiment
