@@ -123,7 +123,7 @@ function ResNet(channelNum, size)
     local model = nn.Sequential()
         :add(nn.View(channelNum, size, size))
 
-    model:add(torch.load('../pre-trained-models/cifar10_32x32_20.t7'))
+    model:add(torch.load('../../../pre-trained-models/cifar10_32x32_20.t7'))
 
     return model
 end
