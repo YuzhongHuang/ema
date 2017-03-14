@@ -118,6 +118,16 @@ function NiN(channelNum, size)
     return model
 end
 
+-- pre-trained resnet(support 32 by 32)
+function ResNet(channelNum, size)
+    local model = nn.Sequential()
+        :add(nn.View(channelNum, size, size))
+
+    model:add(torch.load('../pre-trained-models/cifar10_32x32_20.t7'))
+
+    return model
+end
+
 function Marginal(frameNum, kernelSize)
     local model = nn.Sequential()
         :add(nn.Replicate(1,2))
