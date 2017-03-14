@@ -71,13 +71,11 @@ function getVideo(paths, frameNum, imgSize, channelNum)
         
         -- get all img files under the current folder
         local frames = ls(sys_path)
-        -- grab #frameNum of images porprotionally from #frames images
-        local step = (#frames)/frameNum
 
-        for j=1, frameNum do
+        -- iterate through min(frameNum, #frames) times
+        for j=1, math.min(frameNum, #frames) do
             -- load a frame
-            local index = math.floor(j*step+0.5)    -- return an integer closest to j*step 
-            local frame = frames[index]
+            local frame = frames[j]
 
             -- load and resize the image
             local img = image.load(path..'/'..frame, channelNum, 'float')
@@ -86,6 +84,23 @@ function getVideo(paths, frameNum, imgSize, channelNum)
             -- store the images into the tensor
             batchInputs[{{i},{j},{},{},{}}] = img
         end
+
+
+        -- -- grab #frameNum of images porprotionally from #frames images
+        -- local step = (#frames)/frameNum
+
+        -- for j=1, frameNum do
+        --     -- load a frame
+        --     local index = math.floor(j*step+0.5)    -- return an integer closest to j*step 
+        --     local frame = frames[index]
+
+        --     -- load and resize the image
+        --     local img = image.load(path..'/'..frame, channelNum, 'float')
+        --     img = image.scale(img, imgSize, imgSize)
+
+        --     -- store the images into the tensor
+        --     batchInputs[{{i},{j},{},{},{}}] = img
+        -- end
     end
 
     return batchInputs:cuda()

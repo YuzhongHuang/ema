@@ -19,7 +19,7 @@ require "../../../util/networks"
 -- configurations
 gpuFlag = true  -- set running mode
 imgSize = 32
-gpus = nil
+gpus = {1,2,3,4,5,6,7,8}
 
 -- data loading path
 trainPath = "../../../../kthData/split1/train"
@@ -37,9 +37,9 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.08
+learningRate = 0.04
 learningDecay = 0.008
-iteration = 3  -- #epochs
+iteration = 100  -- #epochs
 momentum = 0.5
 
 -- parameters for building the network
@@ -71,7 +71,7 @@ opt = {
 }
 
 -- generate a network model
-model = exp_1(frameNum, channelNum, classNum, imgSize):cuda()
+model = exp_3(frameNum, channelNum, classNum, imgSize):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then
