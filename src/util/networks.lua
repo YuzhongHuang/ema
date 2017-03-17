@@ -143,7 +143,7 @@ function exp_7_m(frameNum, channelNum, classNum, size)
     local rnnSize = 2*kernelSize
 
     local model = nn.Sequential()
-        :add(ema(frameNum, channelNum, classNum, size))
+        :add(multi_ema(frameNum, channelNum, classNum, size))
         :add(Lenet(channelNum*6, size))
         :add(Marginal(frameNum, kernelSize))
         :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
@@ -173,7 +173,7 @@ function exp_8_m(frameNum, channelNum, classNum, size)
     local rnnSize = 2*kernelSize
 
     local model = nn.Sequential()
-        :add(ema(frameNum, channelNum, classNum, size))
+        :add(multi_ema(frameNum, channelNum, classNum, size))
         :add(Lenet(channelNum*6, size))
         :add(Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
@@ -246,7 +246,7 @@ function exp_14_m(frameNum, channelNum, classNum, size)
     local rnnSize = kernelSize*kernelSize
 
     local model = nn.Sequential()
-        :add(ema(frameNum, channelNum, classNum, size))
+        :add(multi_ema(frameNum, channelNum, classNum, size))
         :add(NiN(channelNum*6, size))
         :add(Non_Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
@@ -281,7 +281,7 @@ function exp_16_m(frameNum, channelNum, classNum, size)
     local rnnSize = 2*kernelSize
 
     local model = nn.Sequential()
-        :add(ema(frameNum, channelNum, classNum, size))
+        :add(multi_ema(frameNum, channelNum, classNum, size))
         :add(NiN(channelNum*6, size))
         :add(Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
