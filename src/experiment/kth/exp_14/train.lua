@@ -37,13 +37,13 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.015
-learningDecay = 0.01
-iteration = 100  -- #epochs
-momentum = 0.5
+learningRate = 0.01
+learningDecay = 0.007
+iteration = 150  -- #epochs
+momentum = 0.3
 
 -- parameters for building the network
-frameNum = 60
+frameNum = 90
 channelNum = 1
 classNum = 6
 relativeBatchSize = 3   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)

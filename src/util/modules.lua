@@ -66,6 +66,18 @@ function ema(frameNum, channelNum, classNum, size)
     return model
 end
 
+function multi_ema(frameNum, channelNum, classNum, size)
+    local net = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(ema(frameNum, channelNum, classNum, size))
+            :add(ema(frameNum, channelNum, classNum, size))
+            :add(ema(frameNum, channelNum, classNum, size)))
+        :add(nn.JoinTable(2,4))
+
+    return net
+end
+
+
 -- Lenet
 function Lenet(channelNum, size)
     local kernelSize = size/4 -3
