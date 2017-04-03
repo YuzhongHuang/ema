@@ -224,9 +224,7 @@ function exp_text_ema(frameNum, channelNum, classNum, size)
         :add(ema(frameNum, channelNum, classNum, size))
         :add(Lenet(channelNum*2, size))
         :add(Non_Marginal(frameNum, kernelSize))
-        :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
-
-    return model
+        :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
 end
 
 -- experiment with different emas: binary ema
@@ -239,7 +237,7 @@ function exp_bin_ema(frameNum, channelNum, classNum, size)
         :add(bin_ema(frameNum, channelNum, classNum, size))
         :add(Lenet(channelNum*2, size))
         :add(Non_Marginal(frameNum, kernelSize))
-        :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+        :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
 
     return model
 end
@@ -254,7 +252,7 @@ function exp_multi_ema(frameNum, channelNum, classNum, size)
         :add(multi_ema(frameNum, channelNum, classNum, size))
         :add(Lenet(channelNum*2, size))
         :add(Non_Marginal(frameNum, kernelSize))
-        :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+        :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
 
     return model
 end
