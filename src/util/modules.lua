@@ -5,7 +5,8 @@
 
 -- ema network layer, with a tunable alpha value and a fixed threshold value
 function ema(frameNum, channelNum, classNum, size)
-    local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
+    -- set up the EMA
+    local input_layer = nn.Sequential():add(nn.MulConstant(0.3)):add(nn.Abs())
     local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
         
     local hidden_layer = nn.Sequential()
@@ -36,34 +37,32 @@ function ema(frameNum, channelNum, classNum, size)
         :add(nn.CSubTable())
     
     local pos = nn.Sequential()
-        :add(nn.AddConstant(-0.003))
+        :add(nn.AddConstant(-0.03))
         :add(nn.ReLU())
     
     local neg = nn.Sequential()
         :add(nn.MulConstant(-1))
-        :add(nn.AddConstant(-0.003))
+        :add(nn.AddConstant(-0.03))
         :add(nn.ReLU())
 
-    local model = nn.Sequential()
+    local net = nn.Sequential()
         :add(nn.View(frameNum, channelNum*size*size))
         :add(frame_normalize)
-        :add(nn.Tanh())
         :add(nn.ConcatTable()
             :add(identity)
             :add(ema))
         :add(nn.CDivTable())
+        :add(nn.View(channelNum*size*size))
+        :add(nn.Normalize(1))
         :add(nn.View(frameNum, channelNum*size*size))
         :add(frame_normalize)
-        :add(nn.View(frameNum, channelNum, size*size))
-        :add(nn.Tanh())
+        :add(nn.MulConstant(channelNum*size*size))
         :add(nn.ConcatTable()
             :add(pos)
             :add(neg))
-        :add(nn.JoinTable(3))
-        :add(nn.MulConstant(20))        
+        :add(nn.JoinTable(3))    
         :add(nn.View(frameNum, channelNum*2, size, size))
-
-    return model
+    return net
 end
 
 function bin_ema(frameNum, channelNum, classNum, size)
