@@ -213,3 +213,48 @@ function exp_24(frameNum, channelNum, classNum, size)
 
     return model
 end
+
+-- experiment with different emas: texture ema
+function exp_text_ema(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+        :add(ema(frameNum, channelNum, classNum, size))
+        :add(Lenet(channelNum*2, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+
+    return model
+end
+
+-- experiment with different emas: binary ema
+function exp_bin_ema(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+        :add(bin_ema(frameNum, channelNum, classNum, size))
+        :add(Lenet(channelNum*2, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+
+    return model
+end
+
+-- experiment with different emas: multiple ema
+function exp_multi_ema(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+        :add(multi_ema(frameNum, channelNum, classNum, size))
+        :add(Lenet(channelNum*2, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+
+    return model
+end
