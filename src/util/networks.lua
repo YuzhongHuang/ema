@@ -258,7 +258,7 @@ function exp_multi_ema(frameNum, channelNum, classNum, size)
 end
 
 -- experiment with different emas: binary ema
-function exp_bin_ema(frameNum, channelNum, classNum, size)
+function exp_beta_ema(frameNum, channelNum, classNum, size)
     local kernelNum = 16
     local kernelSize = size/4 - 3
     local rnnSize = kernelSize*kernelSize
