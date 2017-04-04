@@ -3,8 +3,6 @@
 
 -- This script contains all the modularized network code
 
-local nninit = require 'nninit'
-
 -- ema network layer, with a tunable alpha value and a fixed threshold value
 function ema(frameNum, channelNum, classNum, size)
     -- set up the EMA
@@ -190,7 +188,8 @@ function bin_beta_ema(frameNum, channelNum, classNum, size)
             :add(ema))
         :add(nn.CDivTable())
         :add(nn.Log())
-        :add(nn.Mul()):init('weight', nninit.mulConstant, 3)
+        :add(nn.Mulconstant(3))
+        :add(nn.Mul())
         :add(nn.Exp())
         :add(nn.View(channelNum*size*size))
         :add(nn.Normalize(1))
