@@ -256,3 +256,18 @@ function exp_multi_ema(frameNum, channelNum, classNum, size)
 
     return model
 end
+
+-- experiment with different emas: binary ema
+function exp_bin_ema(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+        :add(bin_beta_ema(frameNum, channelNum, classNum, size))
+        :add(Lenet(channelNum*2, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
+
+    return model
+end
