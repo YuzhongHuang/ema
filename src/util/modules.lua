@@ -6,7 +6,7 @@
 -- ema network layer, with a tunable alpha value and a fixed threshold value
 function ema(frameNum, channelNum, classNum, size)
     -- set up the EMA
-    local input_layer = nn.Sequential():add(nn.MulConstant(0.3)):add(nn.Abs())
+    local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
     local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
         
     local hidden_layer = nn.Sequential()
@@ -68,7 +68,7 @@ end
 
 function bin_ema(frameNum, channelNum, classNum, size)
     -- set up the EMA
-    local input_layer = nn.Sequential():add(nn.MulConstant(0.3)):add(nn.Abs())
+    local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
     local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
         
     local hidden_layer = nn.Sequential()
@@ -135,7 +135,7 @@ end
 
 function single_ema(frameNum, channelNum, classNum, size)
     -- set up the EMA
-    local input_layer = nn.Sequential():add(nn.MulConstant(0.3)):add(nn.Abs())
+    local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
     local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
         
     local hidden_layer = nn.Sequential()
