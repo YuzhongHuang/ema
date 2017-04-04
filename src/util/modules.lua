@@ -3,6 +3,8 @@
 
 -- This script contains all the modularized network code
 
+local nninit = require 'nninit'
+
 -- ema network layer, with a tunable alpha value and a fixed threshold value
 function ema(frameNum, channelNum, classNum, size)
     -- set up the EMA
@@ -133,6 +135,76 @@ function bin_ema(frameNum, channelNum, classNum, size)
     return net
 end
 
+function bin_beta_ema(frameNum, channelNum, classNum, size)
+    -- set up the EMA
+    local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
+    local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
+        
+    local hidden_layer = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(nn.Identity())
+            :add(hidden_layer_alpha))
+        :add(nn.CSubTable())
+    
+    local r = nn.Recurrent(nn.Abs(), input_layer, hidden_layer, nn.Abs(), 5)
+    
+    local ema = nn.Sequential()
+        :add(nn.AddConstant(1))
+        :add(nn.SplitTable(1,2))
+        :add(nn.Sequencer(r))
+        :add(nn.JoinTable(2))
+        :add(nn.AddConstant(0.00001))
+
+    
+    local identity = nn.Sequential()
+        :add(nn.AddConstant(1))
+    
+    local mean = nn.Sequential()
+        :add(nn.Mean(3))
+        :add(nn.Replicate(channelNum*size*size,3))
+    
+    local frame_normalize = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(nn.Identity())
+            :add(mean))
+        :add(nn.CSubTable())
+    
+    local pos = nn.Sequential()
+        :add(nn.Clamp(0.1, 0.1001))
+        :add(nn.AddConstant(-0.1))
+        :add(nn.MulConstant(10000))
+        :add(nn.ReLU())
+    
+    local neg = nn.Sequential()
+        :add(nn.MulConstant(-1))
+        :add(nn.Clamp(0.1, 0.1001))
+        :add(nn.AddConstant(-0.1))
+        :add(nn.MulConstant(10000))
+        :add(nn.ReLU())
+
+    local net = nn.Sequential()
+        :add(nn.View(frameNum, channelNum*size*size))
+        :add(frame_normalize)
+        :add(nn.ConcatTable()
+            :add(identity)
+            :add(ema))
+        :add(nn.CDivTable())
+        :add(nn.Log())
+        :add(nn.Mul()):init('weight', nninit.mulConstant, 3)
+        :add(nn.Exp())
+        :add(nn.View(channelNum*size*size))
+        :add(nn.Normalize(1))
+        :add(nn.View(frameNum, channelNum*size*size))
+        :add(frame_normalize)
+        :add(nn.MulConstant(channelNum*size*size))
+        :add(nn.ConcatTable()
+            :add(pos)
+            :add(neg))
+        :add(nn.JoinTable(3))    
+        :add(nn.View(frameNum, channelNum*2, size, size))
+    return net
+end
+
 function single_ema(frameNum, channelNum, classNum, size)
     -- set up the EMA
     local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
@@ -221,6 +293,8 @@ function multi_bin_ema(frameNum, channelNum, classNum, size)
         :add(nn.View(frameNum, channelNum*2, size, size))
     return net
 end
+
+
 
 -- Lenet
 function Lenet(channelNum, size)
