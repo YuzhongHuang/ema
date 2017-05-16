@@ -243,6 +243,49 @@ function single_ema(frameNum, channelNum, classNum, size)
     return net
 end
 
+function multi_ema(frameNum, channelNum, classNum, size)
+    local pos = nn.Sequential()
+        :add(nn.AddConstant(-0.03))
+        :add(nn.ReLU())
+    
+    local neg = nn.Sequential()
+        :add(nn.MulConstant(-1))
+        :add(nn.AddConstant(-0.03))
+        :add(nn.ReLU())
+    
+    local identity = nn.Sequential()
+        :add(nn.AddConstant(1))
+    
+    local mean = nn.Sequential()
+        :add(nn.Mean(3))
+        :add(nn.Replicate(channelNum*size*size,3))
+    
+    local frame_normalize = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(nn.Identity())
+            :add(mean))
+        :add(nn.CSubTable())
+    
+    local net = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(single_ema(frameNum, channelNum, classNum, size))
+            :add(single_ema(frameNum, channelNum, classNum, size))
+            :add(single_ema(frameNum, channelNum, classNum, size)))
+        :add(nn.JoinTable(2,4))
+        :add(nn.View(frameNum, channelNum*3, size*size))
+        :add(nn.Transpose({3,4}))
+        :add(nn.Bottle(nn.Linear(3, 1)))
+        :add(nn.View(frameNum, channelNum*size*size))
+        :add(frame_normalize)
+        :add(nn.MulConstant(channelNum*size*size))
+        :add(nn.ConcatTable()
+            :add(pos)
+            :add(neg))
+        :add(nn.JoinTable(3))
+        :add(nn.View(frameNum, channelNum*2, size, size))
+    return net
+end
+
 function multi_bin_ema(frameNum, channelNum, classNum, size)
     local pos = nn.Sequential()
         :add(nn.Clamp(0.03, 0.0301))
@@ -288,8 +331,6 @@ function multi_bin_ema(frameNum, channelNum, classNum, size)
         :add(nn.View(frameNum, channelNum*2, size, size))
     return net
 end
-
-
 
 -- Lenet
 function Lenet(channelNum, size)
