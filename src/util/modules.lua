@@ -28,8 +28,8 @@ function ema(frameNum, channelNum, classNum, size)
         :add(nn.AddConstant(1))
     
     local mean = nn.Sequential()
-        :add(nn.Mean(3))
-        :add(nn.Replicate(channelNum*size*size,3))
+        :add(nn.Mean(2,2))
+        :add(nn.Replicate(channelNum*size*size,2,2))
     
     local frame_normalize = nn.Sequential()
         :add(nn.ConcatTable()
