@@ -239,6 +239,21 @@ function exp_14(frameNum, channelNum, classNum, size)
     return model
 end
 
+-- expriment number 14_m: multi-alpha event-driven NiN RCCN
+function exp_14_m(frameNum, channelNum, classNum, size)
+    local kernelNum = 192
+    local kernelSize = size/4
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+        :add(multi_ema(frameNum, channelNum, classNum, size))
+        :add(NiN(channelNum*2, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
+
+    return model
+end
+
 -- -- expriment number 15: event-driven NiN marginal LRCN
 -- function exp_15(frameNum, channelNum, classNum, size)
 
