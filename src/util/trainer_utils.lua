@@ -14,6 +14,7 @@ require "./plot_utils"
 
 function train(optimState, opt, path, model, criterion)
     -- initialize tables for recording trainning and testing result data
+    epochWeights = {}
     epochErrors = {}
     accuracies = {}
     iterations = {}
@@ -90,6 +91,26 @@ function train(optimState, opt, path, model, criterion)
             optim.sgd(feval, parameters, optimState)
         end 
 
+        -- update and record three sets of alpha beta values
+        alpha_1 = model.modules[1].modules[1].modules[1].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
+        alpha_2 = model.modules[1].modules[1].modules[2].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
+        alpha_3 = model.modules[1].modules[1].modules[3].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
+        
+        beta_1 = net.modules[1].modules[1].modules[1].modules[6].weight
+        beta_2 = net.modules[1].modules[1].modules[2].modules[6].weight
+        beta_3 = net.modules[1].modules[1].modules[3].modules[6].weight
+
+        weights = {
+            {alpha_1, beta_1},
+            {alpha_2, beta_2},
+            {alpha_3, beta_3}
+        }
+
+        table.insert(epochWeights, weights)
+
+        print('Epoch Alphas: '..alpha_1..' '..alpha_2..' '..alpha_3)
+        print('Epoch Betas: '..beta_1..' '..beta_2..' '..beta_3)
+
         -- update and record epoch error
         epochError = epochError*opt.batchSize/(#(trainset.paths))
         table.insert(epochErrors, epochError)
@@ -111,6 +132,9 @@ function train(optimState, opt, path, model, criterion)
 
     model:clearState() -- clear model state to minimize memory
     torch.save("./models/model"..opt.exp_name..".t7", model) -- save the model
+
+    --save weights
+    torch.save("./epochWeights/epochWeight"..opt.exp_name..".t7", epochWeights)
 
     -- save the train&test result data
     torch.save("./epochErrors/epochError"..opt.exp_name..".t7", epochErrors)

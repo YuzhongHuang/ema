@@ -247,12 +247,12 @@ end
 
 function multi_ema(frameNum, channelNum, classNum, size)
     local pos = nn.Sequential()
-        :add(nn.AddConstant(-0.03))
+        :add(nn.Add(1, true))
         :add(nn.ReLU())
     
     local neg = nn.Sequential()
         :add(nn.MulConstant(-1))
-        :add(nn.AddConstant(-0.03))
+        :add(nn.Add(1, true))
         :add(nn.ReLU())
     
     local identity = nn.Sequential()
