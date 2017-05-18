@@ -91,12 +91,12 @@ function train(optimState, opt, path, model, criterion)
             optim.sgd(feval, parameters, optimState)
         end 
 
-        print(model.modules[1].modules[1])
+        print(model.modules[1].modules[1].modules[1].modules[3].modules[2].modules[3].modules[1].modules[2])
 
         -- update and record three sets of alpha beta values
-        alpha_1 = model.modules[1].modules[1].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
-        alpha_2 = model.modules[1].modules[2].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
-        alpha_3 = model.modules[1].modules[3].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
+        alpha_1 = model.modules[1].modules[1].modules[1].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
+        alpha_2 = model.modules[1].modules[1].modules[2].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
+        alpha_3 = model.modules[1].modules[1].modules[3].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
         
         beta_1 = net.modules[1].modules[1].modules[6].weight
         beta_2 = net.modules[1].modules[2].modules[6].weight
