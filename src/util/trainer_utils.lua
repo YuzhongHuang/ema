@@ -91,9 +91,6 @@ function train(optimState, opt, path, model, criterion)
             optim.sgd(feval, parameters, optimState)
         end 
 
-        print(model.modules[1].modules[1].modules[1].modules[2])
-        print(model.modules[1].modules[1].modules[1].modules[3])
-
         -- update and record three sets of alpha beta values
         alpha_1 = model.modules[1].modules[1].modules[1].modules[1].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
         alpha_2 = model.modules[1].modules[1].modules[1].modules[2].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight
@@ -110,6 +107,10 @@ function train(optimState, opt, path, model, criterion)
         }
 
         table.insert(epochWeights, weights)
+
+        print(alpha_1)
+        print(alpha_2)
+        print(alpha_3)
 
         print('Epoch Alphas: '..alpha_1..' '..alpha_2..' '..alpha_3)
         print('Epoch Betas: '..beta_1..' '..beta_2..' '..beta_3)
