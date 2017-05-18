@@ -108,7 +108,7 @@ function train(optimState, opt, path, model, criterion)
         -- plot the train and test accuracy in realtime
         plot("./plots/plot"..opt.exp_name..".t7", iterations, accuracies, epochErrors)
     end
-    
+
     model:clearState() -- clear model state to minimize memory
     torch.save("./models/model"..opt.exp_name..".t7", model) -- save the model
 
