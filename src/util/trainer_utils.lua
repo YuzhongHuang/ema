@@ -91,25 +91,25 @@ function train(optimState, opt, path, model, criterion)
             optim.sgd(feval, parameters, optimState)
         end 
 
-        -- update and record three sets of alpha beta values
-        alpha_1 = model.modules[1].modules[1].modules[1].modules[1].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight:double()[1]
-        alpha_2 = model.modules[1].modules[1].modules[1].modules[2].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight:double()[1]
-        alpha_3 = model.modules[1].modules[1].modules[1].modules[3].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight:double()[1]
+        -- -- update and record three sets of alpha beta values
+        -- alpha_1 = model.modules[1].modules[1].modules[1].modules[1].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight:double()[1]
+        -- alpha_2 = model.modules[1].modules[1].modules[1].modules[2].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight:double()[1]
+        -- alpha_3 = model.modules[1].modules[1].modules[1].modules[3].modules[3].modules[2].modules[3].modules[1].modules[2].modules[1].weight:double()[1]
         
-        beta_1 = net.modules[1].modules[1].modules[1].modules[1].modules[6].weight:double()[1]
-        beta_2 = net.modules[1].modules[1].modules[1].modules[2].modules[6].weight:double()[1]
-        beta_3 = net.modules[1].modules[1].modules[1].modules[3].modules[6].weight:double()[1]
+        -- beta_1 = net.modules[1].modules[1].modules[1].modules[1].modules[6].weight:double()[1]
+        -- beta_2 = net.modules[1].modules[1].modules[1].modules[2].modules[6].weight:double()[1]
+        -- beta_3 = net.modules[1].modules[1].modules[1].modules[3].modules[6].weight:double()[1]
 
-        weights = {
-            {alpha_1, beta_1},
-            {alpha_2, beta_2},
-            {alpha_3, beta_3}
-        }
+        -- weights = {
+        --     {alpha_1, beta_1},
+        --     {alpha_2, beta_2},
+        --     {alpha_3, beta_3}
+        -- }
 
-        table.insert(epochWeights, weights)
+        -- table.insert(epochWeights, weights)
 
-        print('Epoch Alphas: '..alpha_1..' '..alpha_2..' '..alpha_3)
-        print('Epoch Betas: '..beta_1..' '..beta_2..' '..beta_3)
+        -- print('Epoch Alphas: '..alpha_1..' '..alpha_2..' '..alpha_3)
+        -- print('Epoch Betas: '..beta_1..' '..beta_2..' '..beta_3)
 
         -- update and record epoch error
         epochError = epochError*opt.batchSize/(#(trainset.paths))
