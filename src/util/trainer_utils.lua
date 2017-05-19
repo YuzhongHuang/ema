@@ -66,7 +66,7 @@ function train(optimState, opt, path, model, criterion)
 
                 -- reset gradients
                 gradParams:zero()
-                model:forget()
+                -- model:forget()
 
                 -- get batch input from batch paths
                 local input = getVideo(paths, opt.frameNum, opt.imgSize, opt.channelNum)
@@ -134,7 +134,7 @@ function train(optimState, opt, path, model, criterion)
     torch.save("./models/model"..opt.exp_name..".t7", model) -- save the model
 
     --save weights
-    torch.save("./epochWeights/epochWeight"..opt.exp_name..".t7", epochWeights)
+    -- torch.save("./epochWeights/epochWeight"..opt.exp_name..".t7", epochWeights)
 
     -- save the train&test result data
     torch.save("./epochErrors/epochError"..opt.exp_name..".t7", epochErrors)
