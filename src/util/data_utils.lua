@@ -84,7 +84,7 @@ function getVideo(paths, frameNum, imgSize, channelNum)
             img = image.scale(img, imgSize, imgSize)
 
             -- store the images into the tensor
-            batchInputs[{{i},{j},{},{},{}}] = img
+            batchInputs[{{i},{j},{},{},{}}] = img[{{1,2},{},{}}]
         end
     end
 
