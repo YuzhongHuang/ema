@@ -19,7 +19,7 @@ require "../../../util/networks"
 -- configurations
 gpuFlag = true  -- set running mode
 imgSize = 32
-gpus = {1,2,3,4,5,6,7,8}
+gpus = {1}
 
 -- data loading path
 trainPath = "../../../../kthData/split1/train"
