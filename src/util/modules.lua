@@ -66,6 +66,18 @@ function ema(frameNum, channelNum, classNum, size)
     return model
 end
 
+function multi_ema(frameNum, channelNum, classNum, size)
+    local net = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(ema(frameNum, channelNum, classNum, size))
+            :add(ema(frameNum, channelNum, classNum, size))
+            :add(ema(frameNum, channelNum, classNum, size)))
+        :add(nn.JoinTable(2,4))
+
+    return net
+end
+
+
 -- Lenet
 function Lenet(channelNum, size)
     local kernelSize = size/4 -3
@@ -141,11 +153,11 @@ end
 function Recurrent_Per_Channel(classNum, kernelNum, rnnSize)
     local model = nn.Sequential()
         :add(nn.SplitTable(2,3))
-        :add(nn.Sequencer(nn.LSTM(rnnSize,rnnSize)))
+        :add(nn.Sequencer(nn.LSTM(rnnSize, classNum)))
         :add(nn.SelectTable(-1))
 
-        :add(nn.View(kernelNum*rnnSize))
-        :add(nn.Linear(kernelNum*rnnSize, classNum))
+        :add(nn.View(kernelNum*classNum))
+        :add(nn.Linear(kernelNum*classNum, classNum))
         :add(nn.LogSoftMax())
 
     return model
