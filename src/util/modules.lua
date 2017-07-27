@@ -66,6 +66,14 @@ function ema(frameNum, channelNum, classNum, size)
     return model
 end
 
+function frame_and_ema(frameNum, channelNum, classNum, size)
+    local model = nn.Sequential()
+	:add(nn.ConcatTable()
+	    :add(ema(frameNum, channelNum, classNum, size))
+	    :add(nn.View(frameNum, channelNum, size, size)))
+	:add(nn.JoinTable(3))
+end
+
 function multi_ema(frameNum, channelNum, classNum, size)
     local net = nn.Sequential()
         :add(nn.ConcatTable()
