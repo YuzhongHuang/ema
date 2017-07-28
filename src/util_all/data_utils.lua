@@ -39,6 +39,10 @@ function getTrain(trainpath, videoPath, frameNum, imgSize, channelNum, trainBatc
         -- get current path
         local path = paths[i]
 
+	if i%50 == 0 then
+	    print("loaded videos : "..i)
+	end
+
         -- deal with some formating issue with the file system
         sys_path = path:gsub('(%))', '\\%)')
         sys_path = path:gsub('(%()', '\\%(')
@@ -65,7 +69,7 @@ function getTrain(trainpath, videoPath, frameNum, imgSize, channelNum, trainBatc
         end
 
         -- assign vid to trainset
-        trainset.vid[i] = vid
+        trainset.vids[i] = vid
     end
 
     -- load labels

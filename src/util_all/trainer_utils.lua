@@ -34,20 +34,20 @@ function train(optimState, opt, path, model, criterion)
         local accuracy = 0
 
         -- loop through all the data with minibatches
-        for t = 1, #(trainset.labels), opt.batchSize do
-            print('Batch progress: '..t..'/'..#(trainset.paths))
+        for t = 1, trainset.labels:size()[1], opt.batchSize do
+            print('Batch progress: '..t..'/'..trainset.labels:size()[1])
 
             -- generate a random indices of whole trainset
-            local indices = getIndices(#(trainset.labels), #(trainset.labels))
+            local indices = getIndices(trainset.labels:size()[1], trainset.labels:size()[1])
 
-            local current_batchSize = math.min(t+opt.batchSize-1, #(trainset.labels)) - t
+            local current_batchSize = math.min(t+opt.batchSize-1, trainset.labels:size()[1]) - t
 
             -- initialize batch input and targets
             local input = torch.FloatTensor(current_batchSize, opt.frameNum, opt.channelNum, opt.imgSize, opt.imgSize)
             local targets = {}
 
             -- load batch input and targets
-            for i = 1, #current_batchSize do
+            for i = 1, current_batchSize do
                 local vid = trainset.vids[indices[i+t]]
                 local vid_frameNum = (#vid)[1]  -- frame number of the vid
 
@@ -57,7 +57,7 @@ function train(optimState, opt, path, model, criterion)
                 end
 
                 -- load the vid to batch input
-                input[{{i},{},{},{},{}}] = vid[{{start,start+opt.frameNum},{},{},{}}]
+                input[{{i},{1, opt.frameNum},{},{},{}}] = vid[{{start, start+opt.frameNum-1},{},{},{}}]
                 -- insert corresponding targets
                 table.insert(targets, trainset.labels[indices[i+t]])
             end
@@ -101,7 +101,7 @@ function train(optimState, opt, path, model, criterion)
         end 
 
         -- update and record epoch error
-        epochError = epochError*opt.batchSize/(#(trainset.paths))
+        epochError = epochError*opt.batchSize/(trainset.labels:size()[1])
         table.insert(epochErrors, epochError)
 
         print('Epoch Error: '..epochError)       
