@@ -19,12 +19,12 @@ require "../../../util/networks"
 -- configurations
 gpuFlag = true  -- set running mode
 imgSize = 32
-gpus = {1}
+gpus = {1,2,3}
 
 -- data loading path
-trainPath = "../../../../ucfData/split1/train"
-testPath = "../../../../ucfData/split1/test"
-videoPath = "../../../../ucfData/frames"
+trainPath = "../../../../../ucfData/split1/train"
+testPath = "../../../../../ucfData/split1/test"
+videoPath = "../../../../../ucfData/frames"
 
 trainName = "/train.txt"    -- name of the train split file
 testName = "/test.txt"      -- name of the test split file
@@ -34,7 +34,7 @@ path = {trainPath=trainPath, testPath=testPath, videoPath=videoPath, trainName=t
 
 -- data parameters
 trainBatchTotal = 75
-testBatchTotal = 24
+testBatchTotal = 25
 
 -- hyper parameters
 learningRate = 0.09

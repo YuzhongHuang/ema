@@ -34,7 +34,6 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
         local path = trainsets..'/'..classes[i]..fileName
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
-        
         -- get all shuffled elements per catergory for training
         local indices = getIndices(trainBatchTotal, trainBatchTotal) 
         
@@ -62,7 +61,9 @@ function getVideo(paths, frameNum, imgSize, channelNum, data_aug)
     local batchInputs = torch.FloatTensor(#paths, frameNum, channelNum, imgSize, imgSize)
     for i=1, #paths do
         local path = paths[i]
-
+        if i%50 == 0 then
+            print("Loading video : "..i)
+        end
         -- deal with some formating issue with the file system
         sys_path = path:gsub('(%))', '\\%)')
         sys_path = path:gsub('(%()', '\\%(')
