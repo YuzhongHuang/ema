@@ -9,12 +9,12 @@ require 'cutorch'
 require 'cudnn'
 require 'nn'
 
-require "../../../util/data_utils"
-require "../../../util/train_utils"
-require "../../../util/trainer_utils"
-require "../../../util/plot_utils"
-require "../../../util/modules"
-require "../../../util/networks"
+require "../../../util_all/data_utils"
+require "../../../util_all/train_utils"
+require "../../../util_all/trainer_utils"
+require "../../../util_all/plot_utils"
+require "../../../util_all/modules"
+require "../../../util_all/networks"
 
 -- configurations
 gpuFlag = true  -- set running mode

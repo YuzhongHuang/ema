@@ -50,14 +50,17 @@ function train(optimState, opt, path, model, criterion)
             for i = 1, current_batchSize do
                 local vid = trainset.vids[indices[i+t]]
                 local vid_frameNum = (#vid)[1]  -- frame number of the vid
-
+                local start = 1
+                local frame_end = 1
                 -- randomly choose a start for data augmentation
-                if opt.frameNum > vid_frameNum then
-                    start = math.random(opt.frameNum - #frames)
+                if vid_frameNum  > opt.frameNum then
+                    start = math.random(vid_frameNum - opt.frameNum)
+                    frame_end = start + opt.frameNum - 1
+                else
+                    frame_end = vid_frameNum
                 end
-
                 -- load the vid to batch input
-                input[{{i},{1, opt.frameNum},{},{},{}}] = vid[{{start, start+opt.frameNum-1},{},{},{}}]
+                input[{{i},{1, frame_end - start + 1},{},{},{}}] = vid[{{start, frame_end},{},{},{}}]
                 -- insert corresponding targets
                 table.insert(targets, trainset.labels[indices[i+t]])
             end

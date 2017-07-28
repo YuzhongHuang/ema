@@ -116,6 +116,10 @@ function getVideo(paths, frameNum, imgSize, channelNum, data_aug)
     local batchInputs = torch.FloatTensor(#paths, frameNum, channelNum, imgSize, imgSize)
     for i=1, #paths do
         local path = paths[i]
+	    if i%50 == 0 then
+	        print("loaded videos : "..i)
+	    end
+
 
         -- deal with some formating issue with the file system
         sys_path = path:gsub('(%))', '\\%)')
