@@ -19,12 +19,12 @@ require "../../../util/networks"
 -- configurations
 gpuFlag = true  -- set running mode
 imgSize = 32
-gpus = {1,2,3,4,5,6,7,8}
+gpus = {1}
 
 -- data loading path
-trainPath = "../../../../kthData/split1/train"
-testPath = "../../../../kthData/split1/test"
-videoPath = "../../../../kthData/frames"
+trainPath = "../../../../ucfData/split1/train"
+testPath = "../../../../ucfData/split1/test"
+videoPath = "../../../../ucfData/frames"
 
 trainName = "/train.txt"    -- name of the train split file
 testName = "/test.txt"      -- name of the test split file
@@ -37,16 +37,16 @@ trainBatchTotal = 75
 testBatchTotal = 24
 
 -- hyper parameters
-learningRate = 0.01
-learningDecay = 0.007
-iteration = 150  -- #epochs
-momentum = 0.3
+learningRate = 0.09
+learningDecay = 0.008
+iteration = 100  -- #epochs
+momentum = 0.5
 
 -- parameters for building the network
-frameNum = 90
+frameNum = 80
 channelNum = 1
-classNum = 6
-relativeBatchSize = 3   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+classNum = 50
+relativeBatchSize = 1   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- name of the experiment
@@ -71,7 +71,7 @@ opt = {
 }
 
 -- generate a network model
-model = exp_14(frameNum, channelNum, classNum, imgSize):cuda()
+model = exp_8(frameNum, channelNum, classNum, imgSize):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then

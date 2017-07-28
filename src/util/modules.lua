@@ -286,10 +286,27 @@ function multi_bin_ema(frameNum, channelNum, classNum, size)
             :add(neg))
         :add(nn.JoinTable(3))
         :add(nn.View(frameNum, channelNum*2, size, size))
-    return net
+
+function frame_and_ema(frameNum, channelNum, classNum, size)
+    local identity = nn.Sequential()
+
+    local model = nn.Sequential()
+	:add(nn.ConcatTable()
+	    :add(ema(frameNum, channelNum, classNum, size))
+	    :add(identity))
+	:add(nn.JoinTable(2,4))
 end
 
+function multi_ema(frameNum, channelNum, classNum, size)
+    local net = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(ema(frameNum, channelNum, classNum, size))
+            :add(ema(frameNum, channelNum, classNum, size))
+            :add(ema(frameNum, channelNum, classNum, size)))
+        :add(nn.JoinTable(2,4))
 
+    return net
+end
 
 -- Lenet
 function Lenet(channelNum, size)

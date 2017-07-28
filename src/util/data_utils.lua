@@ -58,7 +58,7 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
     return paths, labels
 end
 
-function getVideo(paths, frameNum, imgSize, channelNum)
+function getVideo(paths, frameNum, imgSize, channelNum, data_aug)
     local batchInputs = torch.FloatTensor(#paths, frameNum, channelNum, imgSize, imgSize)
     for i=1, #paths do
         local path = paths[i]
@@ -72,8 +72,15 @@ function getVideo(paths, frameNum, imgSize, channelNum)
         -- get all img files under the current folder
         local frames = ls(sys_path)
 
-        -- iterate through min(frameNum, #frames) times
-        for j=1, math.min(frameNum, #frames) do
+	-- data augmentation
+	start = 1
+	if data_aug then
+	    if frameNum > #frames then
+		start = math.random(frameNum - #frames)
+       	    end
+	end
+	-- iterate through min(frameNum, #frames) times
+        for j=start, math.min(frameNum, #frames) do
             -- load a frame
             local frame = frames[j]
 
