@@ -20,14 +20,15 @@ function ema(frameNum, channelNum, classNum, size)
         :add(nn.AddConstant(1))
         :add(nn.SplitTable(1,2))
         :add(nn.Sequencer(r))
-        :add(nn.JoinTable(2))
+        :add(nn.JoinTable(1,1))
+	:add(nn.AddConstant(1e-7))
     
     local identity = nn.Sequential()
         :add(nn.AddConstant(1))
     
     local mean = nn.Sequential()
-        :add(nn.Mean(3))
-        :add(nn.Replicate(channelNum*size*size,3))
+        :add(nn.Mean(2,2))
+        :add(nn.Replicate(channelNum*size*size,2,2))
     
     local frame_normalize = nn.Sequential()
         :add(nn.ConcatTable()
@@ -47,7 +48,6 @@ function ema(frameNum, channelNum, classNum, size)
     local model = nn.Sequential()
         :add(nn.View(frameNum, channelNum*size*size))
         :add(frame_normalize)
-        :add(nn.Tanh())
         :add(nn.ConcatTable()
             :add(identity)
             :add(ema))
@@ -64,6 +64,19 @@ function ema(frameNum, channelNum, classNum, size)
         :add(nn.View(frameNum, channelNum*2, size, size))
 
     return model
+end
+
+function frame_and_ema(frameNum, channelNum, classNum, size)
+    local identity = nn.Sequential()
+	:add(nn.View(frameNum, channelNum, size, size))
+
+    local net = nn.Sequential()
+	:add(nn.ConcatTable()
+	    :add(ema(frameNum, channelNum, classNum, size))
+	    :add(identity))	
+	:add(nn.JoinTable(2,4))
+
+    return net
 end
 
 function multi_ema(frameNum, channelNum, classNum, size)
