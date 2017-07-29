@@ -278,12 +278,12 @@ end
 function exp_16_frame_and_ema(frameNum, channelNum, classNum, size)
     local kernelNum = 192
     local kernelSize = size/4
-    local rnnSize = 2*kernelSize
+    local rnnSize = kernelSize*kernelSize
 
     local model = nn.Sequential()
         :add(frame_and_ema(frameNum, channelNum, classNum, size))
         :add(NiN(channelNum*3, size))
-        :add(Marginal(frameNum, kernelSize))
+        :add(Non_Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
 
     return model
