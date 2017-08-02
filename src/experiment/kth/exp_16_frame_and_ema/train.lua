@@ -43,7 +43,7 @@ iteration = 150  -- #epochs
 momentum = 0.5
 
 -- parameters for building the network
-frameNum = 150
+frameNum = 15
 channelNum = 1
 classNum = 6
 relativeBatchSize = 5   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)

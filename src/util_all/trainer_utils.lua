@@ -20,18 +20,25 @@ function train(optimState, opt, path, model, criterion)
     iterations = {}
 
     -- load a testset
-    local testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    --testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
     
     -- load a trainset to cpu
-    local trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
+    --trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
 
-    -- epoch loop
+    trainset = torch.load("/mnt/group3/ucnn/robin/action_recognition/ucfTrain.t7")
+    testset = torch.load("/mnt/group3/ucnn/robin/action_recognition/ucfTest.t7")
+ 
+    --print("saving...")
+    --torch.save("/mnt/group3/ucnn/robin/action_recognition/ucfTrain.t7", trainset)
+    --torch.save("/mnt/group3/ucnn/robin/action_recognition/ucfTest.t7", testset)
+
+   -- epoch loop
     for epoch = 1, opt.iteration do
         print('Current Epoch: '..epoch)
 
         local parameters, gradParams = model:getParameters()
-        local epochError = 0
-        local accuracy = 0
+        epochError = 0
+        accuracy = 0
 
         -- loop through all the data with minibatches
         for t = 1, trainset.labels:size()[1], opt.batchSize do
@@ -120,14 +127,13 @@ function train(optimState, opt, path, model, criterion)
 
         -- plot the train and test accuracy in realtime
         plot("./plots/plot"..opt.exp_name..".t7", iterations, accuracies, epochErrors)
-    end
     
-    model:clearState() -- clear model state to minimize memory
-    torch.save("./models/model"..opt.exp_name..".t7", model) -- save the model
+        model:clearState() -- clear model state to minimize memory
+        torch.save("./models/model"..opt.exp_name.."_"..epoch..".t7", model) -- save the model
 
-    -- save the train&test result data
-    torch.save("./epochErrors/epochError"..opt.exp_name..".t7", epochErrors)
-    torch.save("./accuracies/accuracy"..opt.exp_name..".t7", accuracies)
-
+        -- save the train&test result data
+        torch.save("./epochErrors/epochError"..opt.exp_name.."_"..epoch..".t7", epochError)
+        torch.save("./accuracies/accuracy"..opt.exp_name.."_"..epoch..".t7", accuracy)
+    end
     return model
 end

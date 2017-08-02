@@ -19,7 +19,7 @@ require "../../../util_all/networks"
 -- configurations
 gpuFlag = true  -- set running mode
 imgSize = 32
-gpus = {1,2,3}
+gpus = {1,2,3,4,5,6,7,8}
 
 -- data loading path
 trainPath = "../../../../../ucfData/split1/train"

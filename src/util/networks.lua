@@ -151,6 +151,20 @@ function exp_7_m(frameNum, channelNum, classNum, size)
     return model
 end
 
+function exp_8_frame_and_ema(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = 2*kernelSize
+
+    local model = nn.Sequential()
+        :add(frame_and_ema(frameNum, channelNum, classNum, size))
+        :add(Lenet(channelNum*3, size))
+        :add(Marginal(frameNum, kernelSize))
+        :add(Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize))
+
+    return model
+end
+
 -- expriment number 8: event-driven lenet marginal RCCN
 function exp_8(frameNum, channelNum, classNum, size)
     local kernelNum = 16
@@ -278,12 +292,12 @@ end
 function exp_16_frame_and_ema(frameNum, channelNum, classNum, size)
     local kernelNum = 192
     local kernelSize = size/4
-    local rnnSize = 2*kernelSize
+    local rnnSize = kernelSize*kernelSize
 
     local model = nn.Sequential()
         :add(frame_and_ema(frameNum, channelNum, classNum, size))
         :add(NiN(channelNum*3, size))
-        :add(Marginal(frameNum, kernelSize))
+        :add(Non_Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
 
     return model
