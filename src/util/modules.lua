@@ -5,7 +5,7 @@
 
 -- ema network layer, with a tunable alpha value and a fixed threshold value
 function ema(frameNum, channelNum, classNum, size)
-    local input_layer = nn.Sequential():add(nn.Mul()):add(nn.Abs())
+    local input_layer = nn.Sequential():add(nn.MulConstant(0.15)):add(nn.Abs())
     local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
         
     local hidden_layer = nn.Sequential()
