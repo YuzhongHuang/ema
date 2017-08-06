@@ -25,8 +25,8 @@ function train(optimState, opt, path, model, criterion)
     -- load a trainset to cpu
     --trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
 
-    trainset = torch.load("/mnt/group3/ucnn/robin/action_recognition/ucfTrain.t7")
-    testset = torch.load("/mnt/group3/ucnn/robin/action_recognition/ucfTest.t7")
+    trainset = torch.load("../../../../ucfData/ucfTrain.t7")
+    testset = torch.load("../../../../ucfData/ucfTest.t7")
  
     --print("saving...")
     --torch.save("/mnt/group3/ucnn/robin/action_recognition/ucfTrain.t7", trainset)
@@ -126,14 +126,14 @@ function train(optimState, opt, path, model, criterion)
         table.insert(iterations, epoch)
 
         -- plot the train and test accuracy in realtime
-        plot("./plots/plot"..opt.exp_name..".t7", iterations, accuracies, epochErrors)
+        plot("./plots/plot"..opt.exp_name, iterations, accuracies, epochErrors)
     
         model:clearState() -- clear model state to minimize memory
         torch.save("./models/model"..opt.exp_name.."_"..epoch..".t7", model) -- save the model
 
         -- save the train&test result data
-        torch.save("./epochErrors/epochError"..opt.exp_name.."_"..epoch..".t7", epochError)
-        torch.save("./accuracies/accuracy"..opt.exp_name.."_"..epoch..".t7", accuracy)
+        torch.save("./epochErrors/epochError"..opt.exp_name.."_"..epoch..".t7", epochErrors)
+        torch.save("./accuracies/accuracy"..opt.exp_name.."_"..epoch..".t7", accuracies)
     end
     return model
 end
