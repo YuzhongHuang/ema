@@ -173,6 +173,20 @@ function Recurrent_Per_Channel(classNum, kernelNum, rnnSize)
     return model
 end
 
+function Recurrent_Per_Channel_ConvLstm(frameNum, classNum, kernelNum, kernelSize)
+    local model = nn.Sequential()
+	:add(nn.View(frameNum, kernelSize, kernelSize))
+        :add(nn.SplitTable(2,4))
+        :add(nn.Sequencer(nn.UntiedConvLSTM(kernelSize, kernelSize, frameNum, 2, 2, 1)))
+        :add(nn.SelectTable(-1))
+
+        :add(nn.View(kernelNum*kernelSize*kernelSize))
+        :add(nn.Linear(kernelNum*kernelSize*kernelSize, classNum))
+        :add(nn.LogSoftMax())
+
+    return model
+end
+
 function Long_Term_Recurrent_lenet(frameNum, classNum, kernelNum, rnnSize)
     local model = nn.Sequential()
         :add(nn.View(kernelNum*rnnSize))

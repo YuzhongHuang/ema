@@ -106,6 +106,19 @@ function exp_6(frameNum, channelNum, classNum, size)
     return model
 end
 
+-- expriment number 6_conv: event-driven lenet RCCN with ConvLstm
+function exp_6_conv(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+
+    local model = nn.Sequential()
+        :add(ema(frameNum, channelNum, classNum, size))
+        :add(Lenet(channelNum*2, size)) 
+        :add(Recurrent_Per_Channel_Convlstm(frameNum, classNum, kernelNum, kernelSize))
+
+    return model
+end
+
 -- expriment number 6_m: multi-event-driven lenet RCCN
 function exp_6_m(frameNum, channelNum, classNum, size)
     local kernelNum = 16
