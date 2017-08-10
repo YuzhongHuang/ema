@@ -37,7 +37,7 @@ trainBatchTotal = 75
 testBatchTotal = 25
 
 -- hyper parameters
-learningRate = 1.2
+learningRate = .4
 learningDecay = 0.01
 iteration = 200  -- #epochs
 momentum = 0.5
@@ -46,7 +46,7 @@ momentum = 0.5
 frameNum = 80
 channelNum = 1
 classNum = 50
-relativeBatchSize = 2   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+relativeBatchSize = 4   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- name of the experiment
@@ -71,7 +71,7 @@ opt = {
 }
 
 -- generate a network model
-model = exp_2(frameNum, channelNum, classNum, imgSize):cuda()
+model = exp_frame_edr(frameNum, channelNum, classNum, imgSize):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then

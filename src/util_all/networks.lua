@@ -33,6 +33,20 @@ function exp_2(frameNum, channelNum, classNum, size)
     return model
 end
 
+-- expriment number 2: frame-driven lenet RCCN
+function exp_2_no_fc(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+        :add(Lenet(channelNum, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Recurrent_Per_Channel_no_fc(classNum, kernelNum, rnnSize))
+
+    return model
+end
+
 -- expriment number 3: frame-driven lenet marginal LRCN
 function exp_3(frameNum, channelNum, classNum, size)
     local kernelNum = 16
@@ -102,6 +116,37 @@ function exp_6(frameNum, channelNum, classNum, size)
         :add(Lenet(channelNum*2, size))
         :add(Non_Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel(classNum, kernelNum, rnnSize))
+
+    return model
+end
+
+-- expriment number 6: event-driven lenet RCCN
+function exp_6_no_fc(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+        :add(ema(frameNum, channelNum, classNum, size))
+        :add(Lenet(channelNum*2, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Recurrent_Per_Channel_no_fc(classNum, kernelNum, rnnSize))
+
+    return model
+end
+
+function exp_frame_edr(frameNum, channelNum, classNum, size)
+    local kernelNum = 16
+    local kernelSize = size/4 - 3
+    local rnnSize = kernelSize*kernelSize
+
+    local model = nn.Sequential()
+	:add(nn.ConcatTable()
+	    :add(exp_2_no_fc(frameNum, channelNum, classNum, size))
+	    :add(exp_6_no_fc(frameNum, channelNum, classNum, size)))
+	:add(nn.JoinTable(2,2))
+	:add(nn.Linear(2*kernelNum*classNum, classNum))
+	:add(nn.LogSoftMax())
 
     return model
 end

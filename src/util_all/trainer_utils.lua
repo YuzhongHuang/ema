@@ -20,7 +20,7 @@ function train(optimState, opt, path, model, criterion)
     iterations = {}
 
     -- load a testset
-    --testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    -- testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
     
     -- load a trainset to cpu
     --trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)

@@ -5,7 +5,7 @@
 
 -- ema network layer, with a tunable alpha value and a fixed threshold value
 function ema(frameNum, channelNum, classNum, size)
-    local input_layer = nn.Sequential():add(nn.MulConstant(0.15)):add(nn.Abs())
+    local input_layer = nn.Sequential():add(nn.MulConstant(0.3)):add(nn.Abs())
     local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
         
     local hidden_layer = nn.Sequential()
@@ -17,14 +17,14 @@ function ema(frameNum, channelNum, classNum, size)
     local r = nn.Recurrent(nn.Abs(), input_layer, hidden_layer, nn.Abs(), 5)
     
     local ema = nn.Sequential()
-        :add(nn.AddConstant(1))
+	:add(nn.AddConstant(1))
         :add(nn.SplitTable(1,2))
         :add(nn.Sequencer(r))
         :add(nn.JoinTable(1,1))
-        :add(nn.AddConstant(1e-12))
+        :add(nn.AddConstant(1e-15))
     
     local identity = nn.Sequential()
-        :add(nn.AddConstant(1))
+	:add(nn.AddConstant(1))
     
     local mean = nn.Sequential()
         :add(nn.Mean(2,2))
@@ -37,12 +37,12 @@ function ema(frameNum, channelNum, classNum, size)
         :add(nn.CSubTable())
     
     local pos = nn.Sequential()
-        :add(nn.AddConstant(-0.03))
+        :add(nn.AddConstant(-0.01))
         :add(nn.ReLU())
     
     local neg = nn.Sequential()
         :add(nn.MulConstant(-1))
-        :add(nn.AddConstant(-0.03))
+        :add(nn.AddConstant(-0.01))
         :add(nn.ReLU())
 
     local model = nn.Sequential()
@@ -169,6 +169,17 @@ function Recurrent_Per_Channel(classNum, kernelNum, rnnSize)
         :add(nn.View(kernelNum*classNum))
         :add(nn.Linear(kernelNum*classNum, classNum))
         :add(nn.LogSoftMax())
+
+    return model
+end
+
+function Recurrent_Per_Channel_no_fc(classNum, kernelNum, rnnSize)
+    local model = nn.Sequential()
+        :add(nn.SplitTable(2,3))
+        :add(nn.Sequencer(nn.LSTM(rnnSize, classNum)))
+        :add(nn.SelectTable(-1))
+
+        :add(nn.View(kernelNum*classNum))
 
     return model
 end
