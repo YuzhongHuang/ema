@@ -58,7 +58,66 @@ function ema(frameNum, channelNum, classNum, size)
             :add(pos)
             :add(neg))
         :add(nn.JoinTable(3))       
-        :add(nn.View(frameNum, channelNum*2, size, size))
+        :add(nn.View(frameNum, channelNum, size, size))
+
+    return model
+end
+
+function ema_vgg(frameNum, channelNum, classNum, size)
+    local input_layer = nn.Sequential():add(nn.MulConstant(0.3)):add(nn.Abs())
+    local hidden_layer_alpha = input_layer:clone('weight','bias','gradWeight','gradBias')
+
+    local hidden_layer = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(nn.Identity())
+            :add(hidden_layer_alpha))
+        :add(nn.CSubTable())
+
+    local r = nn.Recurrent(nn.Abs(), input_layer, hidden_layer, nn.Abs(), 5)
+
+    local ema = nn.Sequential()
+        :add(nn.AddConstant(1))
+        :add(nn.SplitTable(1,2))
+        :add(nn.Sequencer(r))
+        :add(nn.JoinTable(1,1))
+        :add(nn.AddConstant(1e-15))
+
+    local identity = nn.Sequential()
+        :add(nn.AddConstant(1))
+
+    local mean = nn.Sequential()
+        :add(nn.Mean(2,2))
+        :add(nn.Replicate(channelNum*size*size,2,2))
+
+    local frame_normalize = nn.Sequential()
+        :add(nn.ConcatTable()
+            :add(nn.Identity())
+            :add(mean))
+        :add(nn.CSubTable())
+
+    local pos = nn.Sequential()
+        :add(nn.AddConstant(-0.01))
+        :add(nn.ReLU())
+
+    local neg = nn.Sequential()
+        :add(nn.MulConstant(-1))
+        :add(nn.AddConstant(-0.01))
+	:add(nn.ReLU())
+
+    local model = nn.Sequential()
+        :add(nn.View(frameNum, channelNum*size*size))
+        :add(nn.ConcatTable()
+            :add(identity)
+            :add(ema))
+        :add(nn.CDivTable())
+        :add(nn.Log())
+        :add(nn.View(1, frameNum, channelNum, size*size))
+        :add(nn.MulConstant(20))
+        :add(nn.ConcatTable()
+            :add(pos)
+            :add(neg))
+        :add(nn.JoinTable(1,4))
+        :add(nn.View(frameNum, 2, channelNum, size, size))
 
     return model
 end
@@ -144,7 +203,7 @@ end
 function Vgg_19(channelNum, size)
     local kernelSize = 7
     
-    local model = torch.load("../../pretrained/vgg_19/vgg_19.t7")
+    local model = torch.load("../../../../pretrained/vgg_19/vgg_19.t7")
 	:add(nn.View(512, kernelSize, kernelSize))
 
     return model
