@@ -22,9 +22,9 @@ imgSize = 32
 gpus = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}
 
 -- data loading path
-trainPath = "../../../../../ucfData/split1/train"
-testPath = "../../../../../ucfData/split1/test"
-videoPath = "../../../../../ucfData/frames"
+trainPath = "../../../../../hmdbData/split1/train"
+testPath = "../../../../../hmdbData/split1/test"
+videoPath = "../../../../../hmdbData/frames"
 
 trainName = "/train.txt"    -- name of the train split file
 testName = "/test.txt"      -- name of the test split file
@@ -33,20 +33,20 @@ testName = "/test.txt"      -- name of the test split file
 path = {trainPath=trainPath, testPath=testPath, videoPath=videoPath, trainName=trainName, testName=testName}
 
 -- data parameters
-trainBatchTotal = 75
-testBatchTotal = 25
+trainBatchTotal = 70
+testBatchTotal = 30
 
 -- hyper parameters
-learningRate = 1.2
-learningDecay = 0.01
-iteration = 200  -- #epochs
+learningRate = 0.005
+learningDecay = 0.005
+iteration = 200 -- #epochs
 momentum = 0.5
 
 -- parameters for building the network
 frameNum = 80
 channelNum = 1
-classNum = 50
-relativeBatchSize = 2   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
+classNum = 51
+relativeBatchSize = 1   -- batchSize here is relative to each class. The actual batch size would be (batchSize) * (#classes)
 batchSize = relativeBatchSize * classNum
 
 -- name of the experiment
@@ -66,19 +66,19 @@ opt = {
     imgSize = imgSize, 
     channelNum = channelNum, 
     trainBatchTotal = trainBatchTotal, 
-    testBatchTotal = testBatchTotal, 
+    testBatchTotal = testBatchTotal,
     exp_name = exp_name
 }
 
 -- generate a network model
-model = exp_2(frameNum, channelNum, classNum, imgSize):cuda()
+rnn = exp_6(frameNum, channelNum, classNum, imgSize):cuda()
 
 -- initialize a parallel data table for gpu
 if gpus ~= nil then
     net = nn.DataParallelTable(1)
-    net:add(model, gpus)
+    net:add(rnn, gpus)
 else
-    net = model
+    net = rnn
 end
 
 -- build criterion

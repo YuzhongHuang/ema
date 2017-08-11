@@ -1,6 +1,7 @@
 hmdbData/
 kthData/
 ucfData/
+pretrained/
 src/archive/
 src/pre-trained-models/
 *.swp
