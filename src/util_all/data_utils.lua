@@ -44,14 +44,16 @@ function getTrain(trainpath, videoPath, frameNum, imgSize, channelNum, trainBatc
 	end
 
         -- deal with some formating issue with the file system
-        sys_path = path:gsub('(%))', '\\%)')
-        sys_path = path:gsub('(%()', '\\%(')
-        sys_path = path:gsub('(%;)', '\\%;')
-        sys_path = path:gsub('(&)', '\\&')
+        local syspath = path:gsub('(%))', '\\%)')
+        syspath = syspath:gsub('(%()', '\\%(')
+        syspath = syspath:gsub('(%;)', '\\%;')
+        syspath = syspath:gsub('(%&)', '\\%&')
+        syspath = syspath:gsub('(%!)', '\\%!')
+        syspath = syspath:gsub('(%])', '\\%]')
+        syspath = syspath:gsub('(%[)', '\\%[')
 
         -- get all img files under the current folder
-        local frames = ls(sys_path)
-
+        local frames = ls(syspath)
         -- initialize current vid
         local vid = torch.FloatTensor(#frames, channelNum, imgSize, imgSize)
 
@@ -59,7 +61,7 @@ function getTrain(trainpath, videoPath, frameNum, imgSize, channelNum, trainBatc
         for j = 1, #frames do
             -- load a frame
             local frame = frames[j]
-
+	    
             -- load and resize the image
             local img = image.load(path..'/'..frame, channelNum, 'float')
             img = image.scale(img, imgSize, imgSize)
@@ -122,13 +124,15 @@ function getVideo(paths, frameNum, imgSize, channelNum, data_aug)
 
 
         -- deal with some formating issue with the file system
-        sys_path = path:gsub('(%))', '\\%)')
-        sys_path = path:gsub('(%()', '\\%(')
-        sys_path = path:gsub('(%;)', '\\%;')
-        sys_path = path:gsub('(&)', '\\&')
-        
+        local syspath = path:gsub('(%))', '\\%)')
+        syspath = syspath:gsub('(%()', '\\%(')
+        syspath = syspath:gsub('(%;)', '\\%;')
+        syspath = syspath:gsub('(%&)', '\\%&')
+	syspath = syspath:gsub('(%!)', '\\%!')
+	syspath = syspath:gsub('(%])', '\\%]')    
+        syspath = syspath:gsub('(%[)', '\\%[')
         -- get all img files under the current folder
-        local frames = ls(sys_path)
+        local frames = ls(syspath)
 
         -- data augmentation
         start = 1

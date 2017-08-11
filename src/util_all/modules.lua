@@ -140,6 +140,16 @@ function NiN(channelNum, size)
     return model
 end
 
+-- Vgg_19
+function Vgg_19(channelNum, size)
+    local kernelSize = 7
+    
+    local model = torch.load("../../pretrained/vgg_19/vgg_19.t7")
+	:add(nn.View(512, kernelSize, kernelSize))
+
+    return model
+end
+
 function Marginal(frameNum, kernelSize)
     local model = nn.Sequential()
         :add(nn.Replicate(1,2))

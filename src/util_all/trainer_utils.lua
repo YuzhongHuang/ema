@@ -20,17 +20,17 @@ function train(optimState, opt, path, model, criterion)
     iterations = {}
 
     -- load a testset
-    -- testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    --testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
     
     -- load a trainset to cpu
     --trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
-
-    trainset = torch.load("../../../../ucfData/ucfTrain.t7")
-    testset = torch.load("../../../../ucfData/ucfTest.t7")
- 
+    
+    local testset = torch.load("../../../../hmdbData/hmdbTest.t7")
+    local trainset = torch.load("../../../../hmdbData/hmdbTrain.t7")
+    
     --print("saving...")
-    --torch.save("/mnt/group3/ucnn/robin/action_recognition/ucfTrain.t7", trainset)
-    --torch.save("/mnt/group3/ucnn/robin/action_recognition/ucfTest.t7", testset)
+    --torch.save("../../../../hmdbData/hmdbTrain.t7", trainset)
+    --torch.save("../../../../hmdbData/hmdbTest.t7", testset)
 
    -- epoch loop
     for epoch = 1, opt.iteration do
