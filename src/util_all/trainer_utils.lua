@@ -20,17 +20,17 @@ function train(optimState, opt, path, model, criterion)
     iterations = {}
 
     -- load a testset
-    --testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
     
     -- load a trainset to cpu
-    --trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
+    trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
     
-    local testset = torch.load("../../../../hmdbData/hmdbTest.t7")
-    local trainset = torch.load("../../../../hmdbData/hmdbTrain.t7")
+    --local testset = torch.load("../../../../hmdbData/hmdbTest.t7")
+    --local trainset = torch.load("../../../../hmdbData/hmdbTrain.t7")
     
     --print("saving...")
-    --torch.save("../../../../hmdbData/hmdbTrain.t7", trainset)
-    --torch.save("../../../../hmdbData/hmdbTest.t7", testset)
+    torch.save("../../../../hmdbData/hmdbVggTrain.t7", trainset)
+    torch.save("../../../../hmdbData/hmdbVggTest.t7", testset)
 
    -- epoch loop
     for epoch = 1, opt.iteration do
@@ -66,7 +66,10 @@ function train(optimState, opt, path, model, criterion)
                 else
                     frame_end = vid_frameNum
                 end
-                -- load the vid to batch input
+               
+		print('input '..#input)
+		print('vid '..#vid)
+		-- load the vid to batch input
                 input[{{i},{1, frame_end - start + 1},{},{},{}}] = vid[{{start, frame_end},{},{},{}}]
                 -- insert corresponding targets
                 table.insert(targets, trainset.labels[indices[i+t]])

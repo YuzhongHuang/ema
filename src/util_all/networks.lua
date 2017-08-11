@@ -53,7 +53,7 @@ function exp_2_no_fc_vgg(frameNum, channelNum, classNum, size)
     local rnnSize = kernelSize*kernelSize
 
     local model = nn.Sequential()
-        :add(Lenet(channelNum, size))
+        :add(Vgg_19(channelNum, size))
         :add(Non_Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel_no_fc(classNum, kernelNum, rnnSize))
 
@@ -183,11 +183,26 @@ function exp_6_no_fc_vgg(frameNum, channelNum, classNum, size)
     local kernelSize = 7
     local rnnSize = kernelSize*kernelSize
 
-    local model = nn.Sequential()
-        :add(ema(frameNum, channelNum, classNum, size))
-        :add(Vgg_19(channelNum*2, size))
+    local rcn1 = nn.Sequential()
+        :add(nn.Contiguous())
+        :add(Vgg_19(channelNum, size))
         :add(Non_Marginal(frameNum, kernelSize))
         :add(Recurrent_Per_Channel_no_fc(classNum, kernelNum, rnnSize))
+
+    local rcn2 = nn.Sequential()
+        :add(nn.Contiguous())
+        :add(Vgg_19(channelNum, size))
+        :add(Non_Marginal(frameNum, kernelSize))
+        :add(Recurrent_Per_Channel_no_fc(classNum, kernelNum, rnnSize))
+
+
+    local model = nn.Sequential()
+        :add(ema_vgg(frameNum, channelNum, classNum, size))
+        :add(nn.SplitTable(2,5))
+        :add(nn.ParallelTable()
+            :add(rcn1)
+            :add(rcn2))
+        :add(nn.JoinTable(2,2))
 
     return model
 end
@@ -210,8 +225,6 @@ end
 
 function exp_frame_edr_three_stream(frameNum, channelNum, classNum, size)
     local kernelNum = 16
-    local kernelSize = size/4 - 3
-    local rnnSize = kernelSize*kernelSize
 
     local model = nn.Sequential()
         :add(nn.ConcatTable()
@@ -224,17 +237,15 @@ function exp_frame_edr_three_stream(frameNum, channelNum, classNum, size)
     return model
 end
 
-function exp_frame_edr_vgg(frameNum, channelNum, classNum, size)
-    local kernelNum = 16
-    local kernelSize = size/4 - 3
-    local rnnSize = kernelSize*kernelSize
+function exp_frame_edr_three_stream_vgg(frameNum, channelNum, classNum, size)
+    local kernelNum = 512
 
     local model = nn.Sequential()
         :add(nn.ConcatTable()
             :add(exp_2_no_fc_vgg(frameNum, channelNum, classNum, size))
             :add(exp_6_no_fc_vgg(frameNum, channelNum, classNum, size)))
         :add(nn.JoinTable(2,2))
-        :add(nn.Linear(2*kernelNum*classNum, classNum))
+        :add(nn.Linear(3*kernelNum*classNum, classNum))
         :add(nn.LogSoftMax())
 
     return model
