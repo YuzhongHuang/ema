@@ -19,7 +19,7 @@ function getTest(testpath, videoPath, frameNum, imgSize, channelNum, testBatchTo
     paths, labels = getDataPath(testPath, videoPath, frameNum, imgSize, testBatchTotal, testName)
 
     testset.vids = getVideo(paths, frameNum, imgSize, channelNum)
-    testset.labels = torch.Tensor(labels):cuda()
+    testset.labels = torch.Tensor(labels)
 
     return testset
 end
@@ -156,7 +156,7 @@ function getVideo(paths, frameNum, imgSize, channelNum, data_aug)
         end
     end
 
-    return batchInputs:cuda()
+    return batchInputs
 end
 
 

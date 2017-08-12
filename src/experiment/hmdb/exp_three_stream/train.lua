@@ -19,7 +19,7 @@ require "../../../util_all/networks"
 -- configurations
 gpuFlag = true  -- set running mode
 imgSize = 224
-gpus = {1}
+gpus = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}
 
 -- data loading path
 trainPath = "../../../../hmdbData/split1/train"
