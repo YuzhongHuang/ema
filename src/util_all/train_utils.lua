@@ -4,8 +4,33 @@
 -- A util stcript for HMDB-51. This script contains all the
 -- network modules, as well as test data validation function
 
--- accuracy() computes the test accuracy of a given test data
 function getAccuracy(net, testData)
+    local batch = 100
+    
+    -- initialize correct and confusion with the first batch
+    local batchTestData = {}
+    batchTestData.vids = testData.vids[{{1,batch},{},{},{},{}}]:cuda()
+    batchTestData.labels = testData.labels[{{1,batch}}]:cuda()
+
+    local correct, confusion = getCorrect(net, batchTestData)
+
+    -- loop through batches to get accuracy
+    for i = 1+batch, (#testData.labels)[1], batch do
+	print('Test progress: '..t..'/'..#(trainset.paths))
+	
+	batchTestData = {}
+        batchTestData.vids = testData.vids[{{i,math.min(i+batch-1, (#testData.labels)[1])},{},{},{},{}}]:cuda()
+        batchTestData.labels = testData.labels[{{i,math.min(i+batch-1, (#testData.labels)[1])}}]:cuda()
+    	local batchCorrect, batchConfusion = getCorrect(net, batchTestData)
+	correct = correct + batchCorrect
+	confusion = confusion + batchConfusion
+    end 
+
+    return correct*(100.0/(#testData.labels)[1]), confusion
+end
+
+-- accuracy() computes the test accuracy of a given test data
+function getCorrect(net, testData)
     local correct = 0
     local test_num = (#testData.vids)[1]
 
@@ -30,7 +55,7 @@ function getAccuracy(net, testData)
     local confusion = getConfusion(groundtruths, predictions, classNum)
     print(confusion)
 
-    return correct*(100.0/test_num) -- convert the correctness to percentages
+    return correct, confusion -- convert the correctness to percentages
 end
 
 function getConfusion(groundtruths, predictions, classNum)

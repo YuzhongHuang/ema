@@ -6,3 +6,5 @@ src/archive/
 src/pre-trained-models/
 *.swp
 *.t7
+*.zip
+

@@ -17,21 +17,26 @@ function train(optimState, opt, path, model, criterion)
     -- initialize tables for recording trainning and testing result data
     epochErrors = {}
     accuracies = {}
+    confusions = {}
     iterations = {}
 
     -- load a testset
-    testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    --testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    
+    --print("saving test...")
+    --torch.save("../../../../hmdbData/hmdbVggTest.t7", testset)
     
     -- load a trainset to cpu
-    trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
+    --trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
     
-    --local testset = torch.load("../../../../hmdbData/hmdbTest.t7")
-    --local trainset = torch.load("../../../../hmdbData/hmdbTrain.t7")
+    print("start loading testset...") 
+    local testset = torch.load("../../../../hmdbData/hmdbVggTest.t7")
+    print("start loading trainset...")
+    local trainset = torch.load("../../../../hmdbData/hmdbVggTrain.t7")
     
-    --print("saving...")
-    torch.save("../../../../hmdbData/hmdbVggTrain.t7", trainset)
-    torch.save("../../../../hmdbData/hmdbVggTest.t7", testset)
-
+    --print("saving train...")
+    --torch.save("../../../../hmdbData/hmdbVggTrain.t7", trainset)
+    --print('done')
    -- epoch loop
     for epoch = 1, opt.iteration do
         print('Current Epoch: '..epoch)
@@ -66,9 +71,7 @@ function train(optimState, opt, path, model, criterion)
                 else
                     frame_end = vid_frameNum
                 end
-               
-		print('input '..#input)
-		print('vid '..#vid)
+      
 		-- load the vid to batch input
                 input[{{i},{1, frame_end - start + 1},{},{},{}}] = vid[{{start, frame_end},{},{},{}}]
                 -- insert corresponding targets
@@ -120,8 +123,9 @@ function train(optimState, opt, path, model, criterion)
         print('Epoch Error: '..epochError)       
 
         -- update and record accuracy
-        accuracy = getAccuracy(model, testset)
+        accuracy, confusion = getAccuracy(model, testset)
         table.insert(accuracies, accuracy)
+	table.insert(confusions, confusion)
 
         print('Test Accuracy: '..accuracy)
 
@@ -137,6 +141,7 @@ function train(optimState, opt, path, model, criterion)
         -- save the train&test result data
         torch.save("./epochErrors/epochError"..opt.exp_name.."_"..epoch..".t7", epochErrors)
         torch.save("./accuracies/accuracy"..opt.exp_name.."_"..epoch..".t7", accuracies)
+	torch.save("./confusions/confusion"..opt.exp_name.."_"..".t7", confusions)
     end
     return model
 end
