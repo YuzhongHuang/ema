@@ -6,6 +6,7 @@
 -- will perform training through back-propagation.
 
 require 'optim'
+require 'lfs'
 
 require "./train_utils"
 require "./data_utils"
@@ -13,24 +14,25 @@ require "./plot_utils"
 
 math.randomseed(os.time())
 
-function train(optimState, opt, path, model, criterion)
+function train(optimState, opt, path, model, criterion, save_or_load, t7_name_train, t7_name_test)
     -- initialize tables for recording trainning and testing result data
     epochErrors = {}
     accuracies = {}
     iterations = {}
 
-    -- load a testset
-    testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
+    -- load a testset from raw image and save to file
+    if save_or_load == "save" then
+        testset = getTest(path.testPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.testBatchTotal, path.testName)
     
-    -- load a trainset to cpu
-    trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
-    
-    --local testset = torch.load("../../../../hmdbData/hmdbTest.t7")
-    --local trainset = torch.load("../../../../hmdbData/hmdbTrain.t7")
-    
-    --print("saving...")
-    torch.save("../../../../hmdbData/hmdbVggTrain.t7", trainset)
-    torch.save("../../../../hmdbData/hmdbVggTest.t7", testset)
+        -- load a trainset to cpu
+        trainset = getTrain(path.trainPath, path.videoPath, opt.frameNum, opt.imgSize, opt.channelNum, opt.trainBatchTotal, path.trainName)
+        torch.save("../../../../../"..t7_name_train, trainset)
+        torch.save("../../../../../"..t7_name_test, testset)
+    else
+        -- load from existing t7 package
+        trainset = torch.load("../../../../../"..t7_name_train)
+        testset = torch.load("../../../../../"..t7_name_test)
+    end
 
    -- epoch loop
     for epoch = 1, opt.iteration do
@@ -67,14 +69,11 @@ function train(optimState, opt, path, model, criterion)
                     frame_end = vid_frameNum
                 end
                
-		print('input '..#input)
-		print('vid '..#vid)
 		-- load the vid to batch input
                 input[{{i},{1, frame_end - start + 1},{},{},{}}] = vid[{{start, frame_end},{},{},{}}]
                 -- insert corresponding targets
                 table.insert(targets, trainset.labels[indices[i+t]])
             end
-
             -- convert labels to cuda tensors
             local targets = torch.Tensor(targets):cuda()
 
@@ -120,13 +119,19 @@ function train(optimState, opt, path, model, criterion)
         print('Epoch Error: '..epochError)       
 
         -- update and record accuracy
-        accuracy = getAccuracy(model, testset)
+        accuracy = getAccuracyBatched(model, testset)
         table.insert(accuracies, accuracy)
 
         print('Test Accuracy: '..accuracy)
 
         -- update iterations
         table.insert(iterations, epoch)
+
+        -- setup directories
+        lfs.mkdir('plots')
+        lfs.mkdir('models')
+        lfs.mkdir('epochErrors')
+        lfs.mkdir('accuracies')
 
         -- plot the train and test accuracy in realtime
         plot("./plots/plot"..opt.exp_name, iterations, accuracies, epochErrors)

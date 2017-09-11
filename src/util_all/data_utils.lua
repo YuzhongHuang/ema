@@ -12,6 +12,7 @@ math.randomseed(os.time())
 
 -- getTest() return a table with a video tensor and a label tensor
 function getTest(testpath, videoPath, frameNum, imgSize, channelNum, testBatchTotal, testName)
+    print('loading test set...')
     local testset = {}
     local paths = {}
     local labels = {}
@@ -26,6 +27,7 @@ end
 
 -- getTrain() return a table with a video tensor and a label tensor for training
 function getTrain(trainpath, videoPath, frameNum, imgSize, channelNum, trainBatchTotal, trainName)
+    print('loading training set...')
     local trainset = {}
     local paths = {}
     local labels = {}
@@ -86,16 +88,23 @@ function getDataPath(trainsets, videoPath, frameNum, imgSize, trainBatchTotal, f
     local labels = {}
     local pathLabels = {}
 
+    if trainBatchTotal == -1 then
+        print("Using all training data ...")
+    end
+
     for i=1, #classes do
         local path = trainsets..'/'..classes[i]..fileName
         local framePath = videoPath..'/'..classes[i]
         local lst = read_and_process(path, framePath)
-        
+
+        local numVidToUse = trainBatchTotal
+        if trainBatchTotal == -1 then
+            numVidToUse = #lst    
+        end
         -- get all shuffled elements per catergory for training
-        local indices = getIndices(trainBatchTotal, trainBatchTotal) 
-        
+        local indices = getIndices(numVidToUse, numVidToUse) 
         -- get all trainning elements many videos from each class
-        for j=1, trainBatchTotal do
+        for j=1, numVidToUse do
             table.insert(pathLabels, lst[indices[j]]..' '..i)   -- combine paths and labels so for shuffling  
         end 
     end
@@ -128,8 +137,8 @@ function getVideo(paths, frameNum, imgSize, channelNum, data_aug)
         syspath = syspath:gsub('(%()', '\\%(')
         syspath = syspath:gsub('(%;)', '\\%;')
         syspath = syspath:gsub('(%&)', '\\%&')
-	syspath = syspath:gsub('(%!)', '\\%!')
-	syspath = syspath:gsub('(%])', '\\%]')    
+	    syspath = syspath:gsub('(%!)', '\\%!')
+	    syspath = syspath:gsub('(%])', '\\%]')    
         syspath = syspath:gsub('(%[)', '\\%[')
         -- get all img files under the current folder
         local frames = ls(syspath)

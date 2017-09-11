@@ -5,11 +5,14 @@
 -- network modules, as well as test data validation function
 
 -- accuracy() computes the test accuracy of a given test data
+
 function getAccuracy(net, testData)
     local correct = 0
     local test_num = (#testData.vids)[1]
 
     local groundtruths = testData.labels
+    print(#(testData.vids))
+    print(type(testData.vids))
     local outputs = net:forward(testData.vids)
     local predictions = {}
     local classNum = 0
@@ -18,6 +21,48 @@ function getAccuracy(net, testData)
         local groundtruth = groundtruths[i]
         local prediction = outputs[i]
 
+        local confidences, indices = torch.sort(prediction, true)  -- true means sort in descending order
+        if groundtruth == indices[1] then
+            correct = correct + 1
+        end
+
+        classNum = (#indices)[1]
+        table.insert(predictions, indices[1])
+    end
+
+    local confusion = getConfusion(groundtruths, predictions, classNum)
+    print(confusion)
+
+    return correct*(100.0/test_num) -- convert the correctness to percentages
+end
+
+function getAccuracyBatched(net, testData)
+    local correct = 0
+
+    local test_num = (#testData.vids)[1]
+
+    local groundtruths = testData.labels 
+    local predictions = {}
+    local classNum = 0
+
+    local test_batch_size = 500
+    local netouts = {}
+   
+    -- pass testing set by batch 
+    for i = 1,test_num, test_batch_size do
+        local batch_end = i + test_batch_size - 1
+        if batch_end > test_num then
+            batch_end = test_num
+        end
+        local batch_result = net:forward(testData.vids[{{i, batch_end},{},{},{},{}}])
+        for j = 1, (#batch_result)[1] do
+            table.insert(netouts, batch_result[j])
+        end
+    end
+
+    for i=1,test_num do
+        local groundtruth = groundtruths[i]
+        local prediction = netouts[i]
         local confidences, indices = torch.sort(prediction, true)  -- true means sort in descending order
         if groundtruth == indices[1] then
             correct = correct + 1
