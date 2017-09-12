@@ -40,12 +40,15 @@ function get_weight(indices, model, vid, filename, save_path)
 	local weights = layer.weight
 	local outputs = layer.output
 
-	-- save the activation images
+	-- save the activation images under folders that each represents a channel
 	for i = 1, (#outputs)[2] do -- loop through channels
 	    vid_path = save_path.."/"..filename.."_channel"..i
 	    lfs.mkdir(vid_path)
 	    for j = 1, (#outputs)[1] do
-		image.save(vid_path.."img_naming"..".png", outputs[j][i])	
+		image.save(vid_path.."_activations_"..string.format("%06d", j)..".png", outputs[j][i])	
 	    end
 	end
+
+	-- save the weight image
+	image.save(save_path.."_weights.png")
 end
